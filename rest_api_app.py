@@ -1,6 +1,7 @@
 from flask import Flask,json,request,g
 import os,sqlite3
 
+
 def connect_db():
     connection = sqlite3.connect('app_database.db')
     connection.row_factory = sqlite3.Row
