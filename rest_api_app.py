@@ -1,9 +1,6 @@
 from flask import Flask,json,request,g
 import os,sqlite3
 
-app = Flask(__name__)
-
-
 def connect_db():
     connection = sqlite3.connect('app_database.db')
     connection.row_factory = sqlite3.Row
@@ -50,11 +47,11 @@ def get_post_from_user(id_u):
     return json.jsonify({"result": res})
     #return json.dumps({"result": res})
 
-def get_friend_posts(id_u):
-    db = get_db()
-    query = db.execute("select id_u_friend from friends where id_u=?",(id_u,))
-    friends = query.fetchall()
-    res = []
+#def get_friend_posts(id_u):
+    #db = get_db()
+    #query = db.execute("select id_u_friend from friends where id_u=?",(id_u,))
+    #friends = query.fetchall()
+    #res = []
 
 def post(id_u,name,description,position_list):
     db = get_db()
@@ -95,7 +92,3 @@ def get_user(id_u):
     #get pic
     return json.jsonify({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],"numb_of_path":user['numb_of_path'],"number_of_steps":user['number_of_steps'],"length_went":user['length_went']})
     #return json.dumps({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],"numb_of_paths":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],"length_went":user['length_went']})
-
-if __name__ == "__main__":
-    app.debug = True
-    app.run()
