@@ -8,10 +8,9 @@ def connect_db():
     return connection
 
 def get_db():
-   # if not hasattr(g,'sqlite_db'):
-   #     g.sqlite_db = connect_db()
-   # return g.sqlite_db
-    return connect_db()
+    if not hasattr(g,'sqlite_db'):
+        g.sqlite_db = connect_db()
+    return g.sqlite_db
 
 def close_db(error):
     "Closses the database at the end of the request."
