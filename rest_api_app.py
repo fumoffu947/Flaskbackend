@@ -90,5 +90,5 @@ def get_user(id_u):
     qresult = query.fetchall()
     user = qresult[0]
     #get pic
-    return json.jsonify({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],"numb_of_path":user['numb_of_path'],"number_of_steps":user['number_of_steps'],"length_went":user['length_went']})
+    return json.jsonify({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],"numb_of_path":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],"length_went":user['length_went']})
     #return json.dumps({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],"numb_of_paths":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],"length_went":user['length_went']})
