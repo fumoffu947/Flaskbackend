@@ -12,12 +12,12 @@ def hello():
 #def getfriendsposts():
     
 
-@app.route("/user")
+@app.route("/user", methods=["POST"])
 def getuser():
     httpinfo = request.get_json(force=True)
     return get_user(httpinfo['id_u'])
 
-@app.route("/login")
+@app.route("/login",methods=["POST"])
 def userLogin():
     httpinfo = request.get_json(force=True)
     return login(username,pasword)
