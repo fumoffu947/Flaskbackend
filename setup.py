@@ -5,6 +5,7 @@ setup(name='YourAppName',
       description='OpenShift App',
       author='Your Name',
       author_email='example@example.com',
+      EXCON_DEBUG=1,
       url='http://www.python.org/sigs/distutils-sig/',
       install_requires=['Flask'],
      )
