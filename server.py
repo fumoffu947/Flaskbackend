@@ -5,17 +5,24 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
+    get_db()
     return "Hello World!"
 
 #@app.route("/userpost")
 #@app.route("/userfriendpost")
 #def getfriendsposts():
+
+@app.route("/adduser")
+def adduser():
+    postInfo = request.get_json(force=True)
+    return add_user(postInfo['name'],postInfo['lastname'],postInfo['epost'],postInfo['username'],postInfo['pasword'])
     
 
-@app.route("/user", methods=["POST"])
+@app.route("/user", methods=["GET","POST"])
 def getuser():
-    httpinfo = request.get_json(force=True)
-    return get_user(httpinfo['id_u'])
+    #httpinfo = request.get_json(force=True)
+    #return get_user(httpinfo['id_u'])
+    return get_user(1)
 
 @app.route("/login",methods=["POST"])
 def userLogin():

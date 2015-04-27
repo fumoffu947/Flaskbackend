@@ -3,7 +3,7 @@ import os,sqlite3
 
 
 def connect_db():
-    connection = sqlite3.connect('app_database.db')
+    connection = sqlite3.connect(os.environ['OPENSHIFT_DATA_DIR']+'app_database.db')
     connection.row_factory = sqlite3.Row
     return connection
 
@@ -92,3 +92,15 @@ def get_user(id_u):
     #get pic
     return json.jsonify({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],"numb_of_path":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],"length_went":user['length_went']})
     #return json.dumps({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],"numb_of_paths":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],"length_went":user['length_went']})
+
+
+def add_user(name,lastname,epost,username,pasword):
+    db = get_db()
+    db.execute("insert into user (name,lastname,epost,profilepic,number_of_paths,number_of_steps,length_went) values(?,?,?,?,?,?,?)" [name,lastname,epost,"basic pic",0,0,0])
+    db.commit()
+    query = db.execute("select id_u from user where epost=?",(epost,))
+    result = query.fetchall()[0]
+    db.execute("insert into user_pas (id_u,username,pas) values(?,?,?)",[result['id_u'],username,pasword])
+    db.commit()
+    
+    
