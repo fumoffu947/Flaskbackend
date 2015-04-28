@@ -10,13 +10,14 @@ def connect_db():
 def get_db():
     if not hasattr(g,'sqlite_db'):
         g.sqlite_db = connect_db()
-
+        check_tables(g.sqlite_db)
     return g.sqlite_db
 
 def check_tables(db):
     query = db.execute("select name from sqlite_master where type='table' and name='table_name'")
     result = query.fetchall()
-    if ()
+    if (len(result) <= 0):
+        db.execute(".read tables_for_app")
 
 def close_db(error):
     "Closses the database at the end of the request."
