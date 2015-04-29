@@ -1,8 +1,12 @@
 from flask import Flask,request,json
+from config import basedir
 from rest_api_app import *
 
 app = Flask(__name__)
 app.config['PROPAGATE_EXCEPTIONS'] = True
+app.config['DATABASE_PATH'] = os.path.join(basedir,'app_databese.db')
+
+app.register_blueprint(rest_api)
 
 @app.route("/")
 def hello():
