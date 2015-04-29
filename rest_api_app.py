@@ -1,8 +1,6 @@
 from flask import Flask,json,request,g,Blueprint
 import os,sqlite3
-
-#rest_api = Blueprint('rest_api',__name__)
-app = Flask(__name__)
+from server import app
 
 
 def connect_db():
