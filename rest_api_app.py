@@ -1,6 +1,6 @@
 from flask import Flask,json,request,g,Blueprint
 import os,sqlite3
-from server import app
+from config import app
 
 
 def connect_db():
