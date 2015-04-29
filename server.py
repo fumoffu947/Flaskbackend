@@ -6,7 +6,7 @@ app = Flask(__name__)
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['DATABASE_PATH'] = os.path.join(basedir,'app_databese.db')
 
-app.register_blueprint(rest_api)
+#app.register_blueprint(rest_api)
 
 @app.route("/")
 def hello():
