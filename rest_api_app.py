@@ -1,11 +1,12 @@
 from flask import Flask,json,request,g,Blueprint
 import os,sqlite3
 
-rest_api = Blueprint('rest_api',__name__)
+#rest_api = Blueprint('rest_api',__name__)
+app = Flask(__name__)
 
 
 def connect_db():
-    connection = sqlite3.connect(rest_api.config['DATABASE_PATH'])
+    connection = sqlite3.connect(app.config['DATABASE_PATH'])
     connection.row_factory = sqlite3.Row
     return connection
 
