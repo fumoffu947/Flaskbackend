@@ -15,7 +15,7 @@ class RestTest(TestCase):
     def create_app(self):
         """Required method. Always implement this so that app is returned with context."""
         app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'test.db')
+        app.config['DATABASE_PATH'] = 'sqlite:///' + os.path.join(basedir, 'test.db')
         app.config['WTF_CSRF_ENABLED'] = False # This must be disabled for post to succeed during tests
         self.client = app.test_client()
         ctx = app.app_context()

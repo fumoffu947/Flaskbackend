@@ -3,7 +3,7 @@ import os,sqlite3
 
 
 def connect_db():
-    connection = sqlite3.connect(os.environ['OPENSHIFT_DATA_DIR']+'app_database.db')
+    connection = sqlite3.connect(g.app.config['DATABASE_PATH'])
     connection.row_factory = sqlite3.Row
     return connection
 
