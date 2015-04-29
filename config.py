@@ -1,3 +1,3 @@
 import os
 
-basedir = os.eviron['OPENSHIFT_DATA_DIR']
+basedir = os.environ['OPENSHIFT_DATA_DIR']
