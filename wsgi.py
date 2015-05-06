@@ -13,3 +13,5 @@ except IOError:
 #
 
 from server import app as application
+import config
+config.init_db()
