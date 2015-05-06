@@ -41,9 +41,10 @@ def get_post_from_user(id_u):
     res = []
     for post in result:
         #get pictures
+        likes = json.loads(get_post_likes(post['id_p']))
         comments = json.loads(get_comments(post['id_p']))
         name = json.loads(get_name(post['id_u']))
-        res.append([name['name'],name['lastname'],post['id_p'],post['name'],post['description'],post['position_list'],comments['result']])
+        res.append([name['name'],name['lastname'],post['id_p'],post['name'],post['description'],post['position_list'],comments['result'], likes["result"]])
     return json.jsonify({"result": res})
 
 def get_friend_posts(id_u):
@@ -62,9 +63,10 @@ def get_friend_posts(id_u):
         res = []
         for post in result:
             #get pictures
+            likes = json.loads(get_post_likes(post['id_p']))
             comments = json.loads(get_comments(post['id_p']))
             name = json.loads(get_name(post['id_u']))
-            res.append([name['name'],name['lastname'],post['id_p'],post['name'],post['description'],post['position_list'],comments['result']])
+            res.append([name['name'],name['lastname'],post['id_p'],post['name'],post['description'],post['position_list'],comments['result'], likes["result"]])
             return json.jsonify({"result": res})
 
 def post(id_u,name,description,position_list):
@@ -132,19 +134,41 @@ def add_user(name,lastname,epost,username,pasword):
     db.execute("insert into user_pas (id_u,username,pas) values(?,?,?)",[result['id_u'],username,pasword])
     db.commit()
     return json.jsonify({"result":"user added"})
-    
-    
+
+def get_post_likes(id_p):
+    db = get_db()
+    query = db.execute("select * from likes where id_p=?", (id_p,))
+    qresult = query.fetchall()
+    number_of_likes = 0
+    for like in qresult:
+        number_of_likes += 1
+    return json.dumps({"result":number_of_likes})
+
+
+def add_post_like(id_p, id_u):
+    db = get_db()
+    db.execute("insert into likes (id_p,id_u) values(?,?)",(id_p,id_u))
+    db.commit()
+    return json.jsonify({"result":"post was liked"})
+
+def remove_post_like(id_p, id_u):
+    db = get_db();
+    db.execute("delete from likes where id_p=? and id_u=?",(id_p, id_u))
+    db.commit()
+    return json.jsonify({"result":"post like was removed"})
+
 def inittables():
     con = sqlite3.connect(app.config['DATABASE_PATH'])
     con.row_factory = sqlite3.Row
 
     con.execute("create table if not exists user_pas(id_u integer primary key unique, username text not null unique, pas text not null)")
-    con.execute("create table if not exists users(id_u integer primary key autoincrement, name text, lastname text, epost text unique, profilepic text, numb_of_paths integer, number_of_steps integer, length_went integer)")
-    con.execute("create table if not exists friends(id_f integer primary key autoincrement, id_u integer, id_u_friend integer)")
-    con.execute("create table if not exists posts(id_p integer primary key autoincrement, id_u integer, name text, description text, photo_path_list text, position_list text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
-    con.execute("create table if not exists comments(id_c integer primary key autoincrement, id_p integer, id_u integer,comment text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
+    con.execute("create table if not exists users(id_u integer primary key autoincrement, name text not null, lastname text not null, epost text unique not null, profilepic text, numb_of_paths integer, number_of_steps integer, length_went integer)")
+    con.execute("create table if not exists friends(id_f integer primary key autoincrement, id_u integer not null, id_u_friend integer)")
+    con.execute("create table if not exists posts(id_p integer primary key autoincrement, id_u integer not null, name text, description text, photo_path_list text, position_list text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
+    con.execute("create table if not exists comments(id_c integer primary key autoincrement, id_p integer not null, id_u integer not null,comment text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
+    con.execute("create table if not exists likes(id_l integer primary key autoincrement,id_p integer not null, id_u integer not null)")
     con.commit()
     con.close()
     con.close()
 
-#inittables()
+inittables()
