@@ -75,6 +75,12 @@ class FlaskrTestCase(unittest.TestCase):
         assert "2" in rv.data
         assert "test2" in rv.data
         assert "testson2" in rv.data
+
+    def test_add_remove_friend(self):
+        rv = self.apps.post("/addfriend",data=self.get_friend_data_1(), follow_redirects=True)
+        assert "friend was added" in rv.data
+        rv = self.apps.post("/delete/removefriend",data=self.get_friend_data_1())
+        assert "friend was removed" in rv.data
         
     def test_get_user_flow(self):
         rv = self.apps.post("/adduser",data=self.get_user_data_1(),follow_redirects=True)

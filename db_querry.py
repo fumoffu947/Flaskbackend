@@ -26,7 +26,6 @@ def login(username, pasword):
         return json.dumps({"result":"usernameError"})
     if (pasword == result[0]['pas']):
         return json.dumps({"result":result[0]['id_u']})
-        #return json.dumps({"result":result['id_u']})        
     return json.dumps({"result":"paswordError"})
 
 def get_name(id_u):
@@ -34,7 +33,6 @@ def get_name(id_u):
     query = db.execute("SELECT NAME,LASTNAME FROM users where id_u=?",(id_u,))
     result = query.fetchall()
     return json.dumps({"name":result[0]['name'],"lastname":result[0]['lastname']})
-    #return json.dumps({"name":result[0]['name'],"lastname":result[0]['lastname']})
 
 def get_post_from_user(id_u):
     db = get_db()
@@ -47,7 +45,6 @@ def get_post_from_user(id_u):
         name = json.loads(get_name(post['id_u']))
         res.append([name['name'],name['lastname'],post['id_p'],post['name'],post['description'],post['position_list'],comments['result']])
     return json.jsonify({"result": res})
-    #return json.dumps({"result": res})
 
 def get_friend_posts(id_u):
     db = get_db()
@@ -85,7 +82,6 @@ def get_comments(id_p):
         name = json.loads(get_name(comment['id_u']))
         res.append([name['name']+name['lastname'],comment['comment']])
     return  json.dumps({"result": res})
-    #return  json.dumps({"result": res})
 
 def comment_post(id_p, id_u,comment):
     db = get_db()
@@ -95,20 +91,25 @@ def comment_post(id_p, id_u,comment):
 
 def add_friend(id_u,id_u_friend):
     db = get_db()
-    db.execute("insert into friends (id_u,id_u_friend) values(?,?)",(id_u,id_u_friend))
+    db.execute("insert into friends (id_u,id_u_friend) values(?,?)", (id_u, id_u_friend))
     db.commit()
     return json.jsonify({"result":"friend was added"})
 
+def remove_friend(id_u, id_u_friend):
+        db = get_db()
+        db.execute("delete from friends where id_u=? and id_u_friend=?",(id_u,id_u_friend))
+        db.commit()
+        return json.jsonify({"result":"friend was removed"})
+
 def get_friends(id_u):
     db = get_db()
-    query = db.execute("select id_u_friend from friends where id_u=?",(id_u,))
+    query = db.execute("select id_u_friend from friends where id_u=?", (id_u,))
     qresult = query.fetchall()
     res = []
     for friend in qresult:
         name = json.loads(get_name(friend['id_u_friend']))
         res.append([friend['id_u_friend'],name['name'],name['lastname']])
     return json.jsonify({"result":res})
-    #return json.dumps({"result":res})
 
 def get_user(id_u):
     db = get_db()
@@ -118,8 +119,7 @@ def get_user(id_u):
         user = qresult[0]
         #get pic
         return json.jsonify({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],"numb_of_path":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],"length_went":user['length_went']})
-        #return json.dumps({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],"numb_of_paths":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],"length_went":user['length_went']})
-    else: 
+    else:
         return json.jsonify({'result':'exist no such user'})
 
 
@@ -147,4 +147,4 @@ def inittables():
     con.close()
     con.close()
 
-inittables()
+#inittables()

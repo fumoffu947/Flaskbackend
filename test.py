@@ -1,9 +1,27 @@
 import requests,json
-local_url ="http://127.0.0.1:5000/getuser"
-data = json.dumps({'id_u':1})
-#result = requests.post(local_url,data)
-#print(result)
-#print(result.json())
+local_url ="http://flask-projekt.openshift.ida.liu.se/getuser"
+data = json.dumps({'username':"test1","pasword":"test1","id_u":1})
+result = requests.post(local_url,data)
+print(result)
+print(result.text)
+
+local_url ="http://flask-projekt.openshift.ida.liu.se/addfriend"
+data = json.dumps({'username':"test1","pasword":"test1","id_u_friend":2})
+result = requests.post(local_url,data)
+print(result)
+print(result.text)
+
+local_url ="http://flask-projekt.openshift.ida.liu.se/delete/removefriend"
+data = json.dumps({'username':"test1","pasword":"test1","id_u":2})
+result = requests.post(local_url,data)
+print(result)
+print(result.text)
+
+local_url ="http://flask-projekt.openshift.ida.liu.se/addfriend"
+data = json.dumps({'username':"test1","pasword":"test1","id_u_friend":2})
+result = requests.post(local_url,data)
+print(result)
+print(result.text)
 
 name = "test1"
 lastname = "testson1"
@@ -11,7 +29,7 @@ epost = "test1@hotmail.com"
 username = "test1"
 pasword = "test1"
 data = json.dumps({"name":name,"lastname":lastname,"epost":epost,"username":username,"pasword":pasword})
-local_url ="http://127.0.0.1:5000/adduser"
+local_url =""
 #result = requests.post(local_url,data)
 #print(result)
 #print(result.json())

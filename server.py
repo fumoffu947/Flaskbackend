@@ -60,6 +60,14 @@ def addfriend():
     res = json.loads(login(postinfo['username'],postinfo['pasword']))
     return add_friend(res['result'], postinfo['id_u_friend'])
 
+@app.route("/delete/removefriend", methods=['GET','POST'])
+def removefriends():
+    postinfo = request.get_json(force=True)
+    res = json.loads(login(postinfo['username'],postinfo['pasword']))
+    return remove_friend(res['result'],postinfo['id_u_friend'])
+    
+    
+
 @app.teardown_appcontext
 def close(error):
     close_db(error)
