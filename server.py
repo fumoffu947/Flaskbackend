@@ -34,6 +34,7 @@ def getuser():
 def userLogin():
     postinfo = request.get_json(force=True)
     res = json.loads(login(postinfo['username'],postinfo['password']))
+    print(res)
     return json.jsonify({"result":res['result']})
 
 @app.route("/postpath", methods=["GET","POST"])
