@@ -23,6 +23,12 @@ class FlaskrTestCase(unittest.TestCase):
     def test_add_user(self):
         rv = self.apps.post('/adduser',data=self.get_user_data_1(), follow_redirects=True)
         assert "user added" in rv.data
+        rv = self.apps.post('/adduser',data=self.get_user_data_1(), follow_redirects=True)
+        assert "emailError" in rv.data
+        rv = self.apps.post('/adduser',data=self.get_user_data_1_same_username(), follow_redirects=True)
+        print(rv.data)
+        assert "usernameExistsError" in rv.data
+
 
     def test_get_user(self):
         rv = self.apps.post('/adduser',data=self.get_user_data_1(), follow_redirects=True)
@@ -56,14 +62,14 @@ class FlaskrTestCase(unittest.TestCase):
         assert "post added" in rv.data        
         rv = self.apps.post("/postcomment", data=self.get_comment_data_1(), follow_redirects=True)
         assert "comment was added to post" in rv.data
-        rv = self.apps.post("/add/addlike", data=self.get_like_data_1(), follow_redirects=True)
+        rv = self.apps.post("/addremovelike", data=self.get_like_data_1(), follow_redirects=True)
+        print(rv.data)
         assert "post was liked" in rv.data
-        rv = self.apps.post("/add/addlike", data=self.get_like_data_1(), follow_redirects=True)
-        assert "post was liked" in rv.data
-        rv = self.apps.post("/add/addlike", data=self.get_like_data_1(), follow_redirects=True)
-        assert "post was liked" in rv.data
-        rv = self.apps.post("/delete/removelike", data=self.get_like_data_1(), follow_redirects=True)
+        rv = self.apps.post("/addremovelike", data=self.get_like_data_1(), follow_redirects=True)
         assert "post like was removed" in rv.data
+        rv = self.apps.post("/addremovelike", data=self.get_invalid_like_data_1(), follow_redirects=True)
+        print(rv.data)
+        assert "invalidInput" in rv.data
         rv = self.apps.post("/getuserpost",data=self.get_user_pas_1(),follow_redirects=True)
         print(rv.data)
         assert "post test 1" in rv.data
@@ -109,6 +115,7 @@ class FlaskrTestCase(unittest.TestCase):
         assert "post test 2" in rv.data
         assert "this is a post test 2" in rv.data
         rv = self.apps.post("/getuserflowpost",data=self.get_user_pas_2(),follow_redirects=True)
+        assert "no Friends" in rv.data
         assert "post test 1" not in rv.data
         assert "this is a post test 1" not in rv.data
 
@@ -123,12 +130,28 @@ class FlaskrTestCase(unittest.TestCase):
         assert "usernameError" in rv.data
         data_out = json.dumps({"username":"test1","password":"felpass"})
         rv = self.apps.post("/login", data=data_out, follow_redirects=True)
-        assert "paswordError" in rv.data
+        assert "passwordError" in rv.data
         
     def get_user_data_1(self):
         name = "test1"
         lastname = "testson1"
         epost = "test1@hotmail.com"
+        username = "test1"
+        pasword = "test1"
+        return json.dumps({"name":name,"lastname":lastname,"epost":epost,"username":username,"password":pasword})
+
+    def get_user_data_1_same_username(self):
+        name = "test1"
+        lastname = "testson1"
+        epost = "test@hotmail.com"
+        username = "test1"
+        pasword = "test1"
+        return json.dumps({"name":name,"lastname":lastname,"epost":epost,"username":username,"password":pasword})
+
+    def get_user_data_1_empty_email(self):
+        name = "test1"
+        lastname = "testson1"
+        epost = ""
         username = "test1"
         pasword = "test1"
         return json.dumps({"name":name,"lastname":lastname,"epost":epost,"username":username,"password":pasword})
@@ -183,7 +206,13 @@ class FlaskrTestCase(unittest.TestCase):
     def get_like_data_1(self):
         username = "test1"
         pasword = "test1"
-        id_p = 2
+        id_p = 1
+        return json.dumps({"username":username,"password":pasword,"id_p":id_p})
+
+    def get_invalid_like_data_1(self):
+        username = "test1"
+        pasword = "test1"
+        id_p = "troll"
         return json.dumps({"username":username,"password":pasword,"id_p":id_p})
 
 if __name__ == '__main__':

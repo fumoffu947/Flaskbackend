@@ -67,17 +67,11 @@ def removefriends():
     res = json.loads(login(postinfo['username'],postinfo['password']))
     return remove_friend(res['result'],postinfo['id_u_friend'])
 
-@app.route("/add/addlike", methods=['GET','POST'])
-def addlike():
+@app.route("/addremovelike", methods=['GET','POST'])
+def addremovelike():
     postinfo = request.get_json(force=True)
     login_id = json.loads(login(postinfo['username'],postinfo['password']))
-    return add_post_like(login_id['result'],postinfo['id_p'])
-
-@app.route("/delete/removelike", methods=['GET','POST'])
-def removelike():
-    postinfo = request.get_json(force=True)
-    login_id = json.loads(login(postinfo['username'],postinfo['password']))
-    return remove_post_like(login_id['result'],postinfo['id_p'])
+    return add_remove_post_like(postinfo['id_p'], login_id['result'])
 
 @app.teardown_appcontext
 def close(error):

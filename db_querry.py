@@ -44,7 +44,10 @@ def get_post_from_user(id_u):
         likes = json.loads(get_post_likes(post['id_p']))
         comments = json.loads(get_comments(post['id_p']))
         name = json.loads(get_name(post['id_u']))
-        res.append([name['name'],name['lastname'],post['id_p'],post['name'],post['description'],post['position_list'],comments['result'], likes["result"]])
+        res.append(json.dumps({"post_name":name['name'],"post_lastname":name['lastname'],"id_p":post['id_p'],
+                              "name":post['name'],"description":post['description'],
+                              "position_list":post['position_list'],"comments":comments['result'],"likes": likes["result"],
+                              "photos":"[]"}))
     return json.jsonify({"result": res})
 
 def get_friend_posts(id_u):
@@ -66,7 +69,10 @@ def get_friend_posts(id_u):
             likes = json.loads(get_post_likes(post['id_p']))
             comments = json.loads(get_comments(post['id_p']))
             name = json.loads(get_name(post['id_u']))
-            res.append([name['name'],name['lastname'],post['id_p'],post['name'],post['description'],post['position_list'],comments['result'], likes["result"]])
+            res.append(json.dumps({"post_name":name['name'],"post_lastname":name['lastname'],"id_p":post['id_p'],
+                                   "name":post['name'],"description":post['description'],
+                                   "position_list":post['position_list'],"comments":comments['result'],
+                                   "likes": likes["result"],"photos":"[]"}))
             return json.jsonify({"result": res})
 
 def post(id_u,name,description,position_list):
@@ -120,18 +126,25 @@ def get_user(id_u):
     if (len(qresult)>0):
         user = qresult[0]
         #get pic
-        return json.jsonify({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],"numb_of_path":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],"length_went":user['length_went']})
+        return json.jsonify({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],
+                             "numb_of_path":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],
+                             "length_went":user['length_went'],"photo_path_list":"[]"})
     else:
         return json.jsonify({'result':'exist no such user'})
 
 
 def add_user(name,lastname,epost,username,pasword):
     db = get_db()
-    db.execute("insert into users (name,lastname,epost,profilepic,numb_of_paths,number_of_steps,length_went) values(?,?,?,?,?,?,?)", [name,lastname,epost,"basic pic",0,0,0])
-    db.commit()
+    try:
+        db.execute("insert into users (name,lastname,epost,profilepic,numb_of_paths,number_of_steps,length_went) values(?,?,?,?,?,?,?)", [name,lastname,epost,"basic pic",0,0,0])
+    except sqlite3.IntegrityError:
+        return json.jsonify({"result":"emailError"})
     query = db.execute("select id_u from users where epost=?",(epost,))
     result = query.fetchall()[0]
-    db.execute("insert into user_pas (id_u,username,pas) values(?,?,?)",[result['id_u'],username,pasword])
+    try:
+        db.execute("insert into user_pas (id_u,username,pas) values(?,?,?)",[result['id_u'],username,pasword])
+    except sqlite3.IntegrityError:
+        return json.jsonify({"result":"usernameExistsError"})
     db.commit()
     return json.jsonify({"result":"user added"})
 
@@ -145,17 +158,24 @@ def get_post_likes(id_p):
     return json.dumps({"result":number_of_likes})
 
 
-def add_post_like(id_p, id_u):
+def add_remove_post_like(id_p, id_u):
     db = get_db()
-    db.execute("insert into likes (id_p,id_u) values(?,?)",(id_p,id_u))
-    db.commit()
-    return json.jsonify({"result":"post was liked"})
+    querry = db.execute("select * from likes where id_p=? and id_u=?",(id_p,id_u))
+    result = querry.fetchall()
+    if (len(result) == 0):
+        value_integrity = db.execute("select * from posts where id_p=?",(id_p,))
+        value_result = value_integrity.fetchall()
+        if (len(value_result) > 0):
+            db.execute("insert into likes (id_p,id_u) values(?,?)",(id_p,id_u))
+            db.commit()
+            return json.jsonify({"result":"post was liked"})
+        else:
+            return json.jsonify({"result":"invalidInput"})
+    else:
+        db.execute("delete from likes where id_p=? and id_u=?",(id_p, id_u))
+        db.commit()
+        return json.jsonify({"result":"post like was removed"})
 
-def remove_post_like(id_p, id_u):
-    db = get_db();
-    db.execute("delete from likes where id_p=? and id_u=?",(id_p, id_u))
-    db.commit()
-    return json.jsonify({"result":"post like was removed"})
 
 def inittables():
     con = sqlite3.connect(app.config['DATABASE_PATH'])
