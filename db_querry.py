@@ -26,7 +26,7 @@ def login(username, pasword):
         return json.dumps({"result":"usernameError"})
     if (pasword == result[0]['pas']):
         return json.dumps({"result":result[0]['id_u']})
-    return json.dumps({"result":"paswordError"})
+    return json.dumps({"result":"passwordError"})
 
 def get_name(id_u):
     db = get_db()
