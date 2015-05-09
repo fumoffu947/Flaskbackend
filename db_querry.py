@@ -126,7 +126,7 @@ def get_user(id_u):
     if (len(qresult)>0):
         user = qresult[0]
         #get pic
-        return json.jsonify({"name":user['name'],"lastname":user['lastname'],"epost":user['epost'],
+        return json.jsonify({"name":user['name'],"lastname":user['lastname'],"email":user['epost'],
                              "numb_of_path":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],
                              "length_went":user['length_went'],"photo_path_list":"[]"})
     else:

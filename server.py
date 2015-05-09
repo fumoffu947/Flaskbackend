@@ -23,7 +23,7 @@ def getFlowPosts():
 @app.route("/adduser" ,methods=["GET","POST"])
 def adduser():
     postInfo = request.get_json(force=True)
-    return add_user(postInfo['name'],postInfo['lastname'],postInfo['epost'],postInfo['username'],postInfo['password'])
+    return add_user(postInfo['name'],postInfo['lastname'],postInfo['email'],postInfo['username'],postInfo['password'])
 
 @app.route("/getuser", methods=["GET","POST"])
 def getuser():
