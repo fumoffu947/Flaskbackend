@@ -73,7 +73,7 @@ def addremovelike():
     login_id = json.loads(login(postinfo['username'],postinfo['password']))
     return add_remove_post_like(postinfo['id_p'], login_id['result'])
 
-@app.route("/test/gettall", methods=['GET'])
+@app.route("/test/getall", methods=['GET'])
 def getallusers():
     return get_all_users()
 
