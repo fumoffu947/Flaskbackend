@@ -181,7 +181,7 @@ def get_all_users():
     querry = db.execute("select * from users")
     qresult = querry.fetchall()
     result = []
-    for user in result:
+    for user in qresult:
         result.append(json.dumps({user['name'],user['lastname'],user['epost']}))
     return json.jsonify({"result":result})
 
