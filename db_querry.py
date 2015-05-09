@@ -176,6 +176,15 @@ def add_remove_post_like(id_p, id_u):
         db.commit()
         return json.jsonify({"result":"post like was removed"})
 
+def get_all_users():
+    db = get_db()
+    querry = db.execute("select * from users")
+    qresult = querry.fetchall()
+    result = []
+    for user in result:
+        result.append(json.dumps({user['name'],user['lastname'],user['epost']}))
+    return json.jsonify({"result":result})
+
 
 def inittables():
     con = sqlite3.connect(app.config['DATABASE_PATH'])
