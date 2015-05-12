@@ -76,7 +76,7 @@ def get_friend_posts(id_u):
                                    "name":post['name'],"description":post['description'],
                                    "position_list":post['position_list'],"comments":comments['result'],
                                    "likes": likes["result"],"photos":"[]"}))
-            return json.jsonify({"result": res})
+        return json.jsonify({"result": res})
 
 def post(id_u,name,description,position_list):
     db = get_db()
