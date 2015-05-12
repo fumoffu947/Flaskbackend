@@ -182,7 +182,7 @@ def add_remove_post_like(id_p, id_u):
 
 def user_search(id_u, partusername):
     db = get_db()
-    querry = db.execute("select id_u,name,lastname from where not id_u=? name LIKE %?% or lastname LIKE %?%",(id_u,partusername,partusername))
+    querry = db.execute('select id_u,name,lastname from users where not id_u=? and name like ? or not id_u=? and lastname like ?',(id_u, "%"+partusername+"%", id_u, "%"+partusername+"%"))
     qresult = querry.fetchall()
     res = []
     for person in qresult:

@@ -146,6 +146,7 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.apps.post("/adduser",data=self.get_user_data_2(),follow_redirects=True)
         assert "user added" in rv.data
         rv = self.apps.post("/searchuser", data=self.get_user_search_data_1(), follow_redirects=True)
+        print(rv.data)
         assert "test2" in rv.data
         assert "testson2" in rv.data
         assert "test1" not in rv.data
