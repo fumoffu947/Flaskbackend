@@ -4,10 +4,9 @@ import os,sqlite3
 #'sqlite:///'
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-if os.environ['OPENSHIFT_DATA_DIR'] is None:
+if os.environ.get('OPENSHIFT_DATA_DIR') is None:
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, 'app.db')
 else:
-     SQLALCHEMY_DATABASE_URI = os.environ['OPENSHIFT_POSTGRESQL_DB_URL']
      basedir = os.environ['OPENSHIFT_DATA_DIR']
 
 app = Flask(__name__)
