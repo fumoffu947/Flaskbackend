@@ -32,7 +32,10 @@ def get_name(id_u):
     db = get_db()
     query = db.execute("SELECT NAME,LASTNAME FROM users where id_u=?",(id_u,))
     result = query.fetchall()
-    return json.dumps({"name":result[0]['name'],"lastname":result[0]['lastname']})
+    if (len(result) >0):
+        return json.dumps({"result":"ok","name":result[0]['name'],"lastname":result[0]['lastname']})
+    else:
+        return json.dumps({"result":"no user with that id_u"})
 
 def get_post_from_user(id_u):
     db = get_db()
@@ -116,7 +119,8 @@ def get_friends(id_u):
     res = []
     for friend in qresult:
         name = json.loads(get_name(friend['id_u_friend']))
-        res.append([friend['id_u_friend'],name['name'],name['lastname']])
+        if (name['result'] == "ok"):
+            res.append([friend['id_u_friend'],name['name'],name['lastname']])
     return json.jsonify({"result":res})
 
 def get_user(id_u):
@@ -182,7 +186,7 @@ def get_all_users():
     qresult = querry.fetchall()
     result = []
     for user in qresult:
-        result.append(json.dumps({"name":user['name'],"lastname":user['lastname'],"email":user['epost']}))
+        result.append(json.dumps({"name":user['name'],"lastname":user['lastname'],"email":user['epost'],"id_u":user['id_u']}))
     return json.jsonify({"result":result})
 
 

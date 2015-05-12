@@ -23,6 +23,24 @@ result = requests.post(local_url,data)
 print(result)
 print(result.text)
 
+local_url ="http://flask-projekt.openshift.ida.liu.se/postpath"
+data = json.dumps({'username':"ph","password":"ph","name":"a path","description":"en forklaring","position_list":"[[]]"})
+result = requests.post(local_url,data)
+print(result)
+print(result.text)
+
+local_url ="http://flask-projekt.openshift.ida.liu.se/addfriend"
+data = json.dumps({'username':"ph","password":"ph","id_u_friend":1})
+result = requests.post(local_url,data)
+print(result)
+print(result.text)
+
+local_url ="http://flask-projekt.openshift.ida.liu.se/addfriend"
+data = json.dumps({'username':"ph","password":"ph","id_u_friend":2})
+result = requests.post(local_url,data)
+print(result)
+print(result.text)
+
 name = "test1"
 lastname = "testson1"
 epost = "test1@hotmail.com"

@@ -131,6 +131,14 @@ class FlaskrTestCase(unittest.TestCase):
         data_out = json.dumps({"username":"test1","password":"felpass"})
         rv = self.apps.post("/login", data=data_out, follow_redirects=True)
         assert "passwordError" in rv.data
+
+    def test_get_all(self):
+        rv = self.apps.post("/adduser",data=self.get_user_data_1(),follow_redirects=True)
+        assert "user added" in rv.data
+        rv = self.apps.get("/test/getall")
+        print(rv.data)
+        assert "test1" in rv.data
+        assert "testson1" in rv.data
         
     def get_user_data_1(self):
         name = "test1"
@@ -138,7 +146,7 @@ class FlaskrTestCase(unittest.TestCase):
         epost = "test1@hotmail.com"
         username = "test1"
         pasword = "test1"
-        return json.dumps({"name":name,"lastname":lastname,"epost":epost,"username":username,"password":pasword})
+        return json.dumps({"name":name,"lastname":lastname,"email":epost,"username":username,"password":pasword})
 
     def get_user_data_1_same_username(self):
         name = "test1"
@@ -146,7 +154,7 @@ class FlaskrTestCase(unittest.TestCase):
         epost = "test@hotmail.com"
         username = "test1"
         pasword = "test1"
-        return json.dumps({"name":name,"lastname":lastname,"epost":epost,"username":username,"password":pasword})
+        return json.dumps({"name":name,"lastname":lastname,"email":epost,"username":username,"password":pasword})
 
     def get_user_data_1_empty_email(self):
         name = "test1"
@@ -154,7 +162,7 @@ class FlaskrTestCase(unittest.TestCase):
         epost = ""
         username = "test1"
         pasword = "test1"
-        return json.dumps({"name":name,"lastname":lastname,"epost":epost,"username":username,"password":pasword})
+        return json.dumps({"name":name,"lastname":lastname,"email":epost,"username":username,"password":pasword})
 
     def get_user_pas_1(self):
         username = "test1"
@@ -172,7 +180,7 @@ class FlaskrTestCase(unittest.TestCase):
         epost = "test2@hotmail.com"
         username = "test2"
         pasword = "test2"
-        return json.dumps({"name":name,"lastname":lastname,"epost":epost,"username":username,"password":pasword})
+        return json.dumps({"name":name,"lastname":lastname,"email":epost,"username":username,"password":pasword})
 
     def get_post_data_1(self):
         username = "test1"
