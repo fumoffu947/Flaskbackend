@@ -13,6 +13,8 @@ app = Flask(__name__)
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.config['DATABASE_PATH'] = os.path.join(basedir,'app_database.db')
 
+troll = 1
+
 def init_db():
     con = sqlite3.connect(app.config['DATABASE_PATH'])
     con.row_factory = sqlite3.Row
