@@ -186,7 +186,7 @@ def user_search(id_u, partusername):
     qresult = querry.fetchall()
     res = []
     for person in qresult:
-        res.append(json.dumps({"id_u":person['id_u'],"name":person['name'],"lastname":person['lastname']}))
+        res.append([person['id_u'],person['name'],person['lastname']])
     return json.jsonify({"result":res})
 
 
@@ -196,7 +196,7 @@ def get_all_users():
     qresult = querry.fetchall()
     result = []
     for user in qresult:
-        result.append(json.dumps({"name":user['name'],"lastname":user['lastname'],"email":user['epost'],"id_u":user['id_u']}))
+        result.append(json.dumps({"name":user['name'],"lastname":user['lastname'],"email":user['epost'],"id_u"user['id_u']}))
     return json.jsonify({"result":result})
 
 
