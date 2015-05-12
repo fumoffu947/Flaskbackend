@@ -100,14 +100,15 @@ def comment_post(id_p, id_u,comment):
     db.commit()
     return json.jsonify({"result":"comment was added to post"})
 
-def add_friend(id_u,id_u_friend):
+def add_remove_friend(id_u,id_u_friend):
     db = get_db()
-    db.execute("insert into friends (id_u,id_u_friend) values(?,?)", (id_u, id_u_friend))
-    db.commit()
-    return json.jsonify({"result":"friend was added"})
-
-def remove_friend(id_u, id_u_friend):
-        db = get_db()
+    querry = db.execute("select * from friends where id_u=? and id_u_friend=?",(id_u,id_u_friend))
+    qresult = querry.fetchall()
+    if (len(qresult) == 0):
+        db.execute("insert into friends (id_u,id_u_friend) values(?,?)", (id_u, id_u_friend))
+        db.commit()
+        return json.jsonify({"result":"friend was added"})
+    else:
         db.execute("delete from friends where id_u=? and id_u_friend=?",(id_u,id_u_friend))
         db.commit()
         return json.jsonify({"result":"friend was removed"})

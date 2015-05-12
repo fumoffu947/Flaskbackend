@@ -85,7 +85,7 @@ class FlaskrTestCase(unittest.TestCase):
         assert "user added" in rv.data
         rv = self.apps.post("/adduser",data=self.get_user_data_2(),follow_redirects=True)
         assert "user added" in rv.data
-        rv = self.apps.post("/addfriend",data=self.get_friend_data_1(), follow_redirects=True)
+        rv = self.apps.post("/addremovefriend",data=self.get_friend_data_1(), follow_redirects=True)
         assert "friend was added" in rv.data
         rv = self.apps.post("/getfriends",data=self.get_user_pas_1(), follow_redirects=True)
         assert "2" in rv.data
@@ -93,9 +93,9 @@ class FlaskrTestCase(unittest.TestCase):
         assert "testson2" in rv.data
 
     def test_add_remove_friend(self):
-        rv = self.apps.post("/addfriend",data=self.get_friend_data_1(), follow_redirects=True)
+        rv = self.apps.post("/addremovefriend",data=self.get_friend_data_1(), follow_redirects=True)
         assert "friend was added" in rv.data
-        rv = self.apps.post("/delete/removefriend",data=self.get_friend_data_1())
+        rv = self.apps.post("/addremovefriend",data=self.get_friend_data_1())
         assert "friend was removed" in rv.data
         
     def test_get_user_flow(self):
@@ -103,7 +103,7 @@ class FlaskrTestCase(unittest.TestCase):
         assert "user added" in rv.data
         rv = self.apps.post("/adduser",data=self.get_user_data_2(),follow_redirects=True)
         assert "user added" in rv.data
-        rv = self.apps.post("/addfriend",data=self.get_friend_data_1(), follow_redirects=True)
+        rv = self.apps.post("/addremovefriend",data=self.get_friend_data_1(), follow_redirects=True)
         assert "friend was added" in rv.data
         rv = self.apps.post("/postpath",data=self.get_post_data_1(), follow_redirects=True)
         assert "post added" in rv.data        

@@ -55,17 +55,11 @@ def getFriends():
     res = json.loads(login(postinfo['username'],postinfo['password']))
     return get_friends(res['result'])
 
-@app.route("/addfriend", methods=['GET','POST'])
+@app.route("/addremovefriend", methods=['GET','POST'])
 def addfriend():
     postinfo = request.get_json(force=True)
     res = json.loads(login(postinfo['username'],postinfo['password']))
-    return add_friend(res['result'], postinfo['id_u_friend'])
-
-@app.route("/delete/removefriend", methods=['GET','POST'])
-def removefriends():
-    postinfo = request.get_json(force=True)
-    res = json.loads(login(postinfo['username'],postinfo['password']))
-    return remove_friend(res['result'],postinfo['id_u_friend'])
+    return add_remove_friend(res['result'], postinfo['id_u_friend'])
 
 @app.route("/addremovelike", methods=['GET','POST'])
 def addremovelike():
