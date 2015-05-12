@@ -180,6 +180,16 @@ def add_remove_post_like(id_p, id_u):
         db.commit()
         return json.jsonify({"result":"post like was removed"})
 
+def user_search(id_u, partusername):
+    db = get_db()
+    querry = db.execute("select id_u,name,lastname from where not id_u=? name LIKE %?% or lastname LIKE %?%",(id_u,partusername,partusername))
+    qresult = querry.fetchall()
+    res = []
+    for person in qresult:
+        res.append(json.dumps({"id_u":person['id_u'],"name":person['name'],"lastname":person['lastname']}))
+    return json.jsonify({"result":res})
+
+
 def get_all_users():
     db = get_db()
     querry = db.execute("select * from users")

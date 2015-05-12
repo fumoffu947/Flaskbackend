@@ -139,6 +139,20 @@ class FlaskrTestCase(unittest.TestCase):
         print(rv.data)
         assert "test1" in rv.data
         assert "testson1" in rv.data
+
+    def test_search_users(self):
+        rv = self.apps.post("/adduser",data=self.get_user_data_1(),follow_redirects=True)
+        assert "user added" in rv.data
+        rv = self.apps.post("/adduser",data=self.get_user_data_2(),follow_redirects=True)
+        assert "user added" in rv.data
+        rv = self.apps.post("/searchuser", data=self.get_user_search_data_1(), follow_redirects=True)
+        assert "test2" in rv.data
+        assert "testson2" in rv.data
+        assert "test1" not in rv.data
+        rv = self.apps.post("/searchuser", data=self.get_user_search_data_2(), follow_redirects=True)
+        assert "test2" in rv.data
+        assert "testson2" in rv.data
+        assert "test1" not in rv.data
         
     def get_user_data_1(self):
         name = "test1"
@@ -155,6 +169,18 @@ class FlaskrTestCase(unittest.TestCase):
         username = "test1"
         pasword = "test1"
         return json.dumps({"name":name,"lastname":lastname,"email":epost,"username":username,"password":pasword})
+
+    def get_user_search_data_1(self):
+        partname = "tes"
+        username = "test1"
+        pasword = "test1"
+        return json.dumps({"partusername":partname,"username":username,"password":pasword})
+
+    def get_user_search_data_2(self):
+        partname = "2"
+        username = "test1"
+        pasword = "test1"
+        return json.dumps({"partusername":partname,"username":username,"password":pasword})
 
     def get_user_data_1_empty_email(self):
         name = "test1"

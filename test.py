@@ -56,13 +56,13 @@ print(result)
 print(result.text)
 
 local_url ="http://flask-projekt.openshift.ida.liu.se/addfriend"
-data = json.dumps({'username':"ph","password":"ph","id_u_friend":4})
+data = json.dumps({'username':"ph","password":"ph","id_u_friend":2})
 result = requests.post(local_url,data)
 print(result)
 print(result.text)
 
 local_url ="http://flask-projekt.openshift.ida.liu.se/addfriend"
-data = json.dumps({'username':"ph","password":"ph","id_u_friend":5})
+data = json.dumps({'username':"ph","password":"ph","id_u_friend":3})
 result = requests.post(local_url,data)
 print(result)
 print(result.text)

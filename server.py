@@ -73,6 +73,13 @@ def addremovelike():
     login_id = json.loads(login(postinfo['username'],postinfo['password']))
     return add_remove_post_like(postinfo['id_p'], login_id['result'])
 
+@app.route("/searchuser", methods=['GET','POST'])
+def search():
+    postinfo = request.get_json(force=True)
+    res = json.loads(login(postinfo['username'],postinfo['password']))
+    return user_search(res['result'], postinfo['partusername'])
+
+
 @app.route("/test/getall", methods=['GET'])
 def getallusers():
     return get_all_users()
@@ -80,10 +87,6 @@ def getallusers():
 @app.teardown_appcontext
 def close(error):
     close_db(error)
-
-
-
-
 
 if __name__ == "__main__":
     app.run()
