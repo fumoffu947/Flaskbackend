@@ -43,14 +43,18 @@ def get_post_from_user(id_u):
     result = query.fetchall()
     res = []
     for post in result:
-        #get pictures
+        photos = []
+        photoquerry = db.execute("select photo from postphotos where id_p=?",(post['id_p'],))
+        photoresult = photoquerry.fetchall()
+        for photo in photoresult:
+            photos.append(photo['photo'])
         likes = json.loads(get_post_likes(post['id_p']))
         comments = json.loads(get_comments(post['id_p']))
         name = json.loads(get_name(post['id_u']))
         res.append(json.dumps({"post_name":name['name'],"post_lastname":name['lastname'],"id_p":post['id_p'],
                               "name":post['name'],"description":post['description'],
                               "position_list":post['position_list'],"comments":comments['result'],"likes": likes["result"],
-                              "photos":"[]"}))
+                              "photos":photos}))
     return json.jsonify({"result": res})
 
 def get_friend_posts(id_u):
@@ -68,21 +72,30 @@ def get_friend_posts(id_u):
         result = querry.fetchall()
         res = []
         for post in result:
-            #get pictures
+            photos = []
+            photoquerry = db.execute("select photo from postphotos where id_p=?",(post['id_p'],))
+            photoresult = photoquerry.fetchall()
+            for photo in photoresult:
+                photos.append(photo['photo'])
             likes = json.loads(get_post_likes(post['id_p']))
             comments = json.loads(get_comments(post['id_p']))
             name = json.loads(get_name(post['id_u']))
             res.append(json.dumps({"post_name":name['name'],"post_lastname":name['lastname'],"id_p":post['id_p'],
                                    "name":post['name'],"description":post['description'],
                                    "position_list":post['position_list'],"comments":comments['result'],
-                                   "likes": likes["result"],"photos":"[]"}))
+                                   "likes": likes["result"],"photos":photos}))
         return json.jsonify({"result": res})
 
-def post(id_u,name,description,position_list):
-    db = get_db()
-    db.execute("insert into posts (id_u,name,description,photo_path_list,position_list) values(?,?,?,?,?)",[id_u,name,description,"photo",position_list])
-    db.commit()
-    return json.jsonify({"result":"post added"})
+def post(id_u,name,description,position_list,photos):
+    try:
+        db = get_db()
+        db.execute("insert into posts (id_u,name,description,photo_path_list,position_list) values(?,?,?,?,?)",[id_u,name,description,"photo",position_list])
+        for photo in photos:
+            db.execute("insert into postphotos (photo, id_p) values (?,?)",(photo, id_u))
+        db.commit()
+        return json.jsonify({"result":"post added"})
+    except:
+        return json.jsonify({"result":"failed to post"})
 
 def get_comments(id_p):
     db = get_db()
@@ -211,8 +224,9 @@ def inittables():
     con.execute("create table if not exists posts(id_p integer primary key autoincrement, id_u integer not null, name text, description text, photo_path_list text, position_list text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
     con.execute("create table if not exists comments(id_c integer primary key autoincrement, id_p integer not null, id_u integer not null,comment text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
     con.execute("create table if not exists likes(id_l integer primary key autoincrement,id_p integer not null, id_u integer not null)")
+    con.execute("create table if not exists friendrequests(id_fr integer primary key autoincrement, id_u integer, id_u_friend_request integer)")
+    con.execute("create table if not exists postphotos(id_pp integer primary key autoincrement, photo text, id_p integer)")
     con.commit()
-    con.close()
     con.close()
 
 inittables()

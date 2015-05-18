@@ -44,11 +44,8 @@ def postPath():
     res = json.loads(login(postinfo['username'],postinfo['password']))
     photores = postinfo['photos']
     jpglist = []
-    print(type(photores)==list)
     for img in photores:
-        print(img)
         jpglist.append(base64.b64decode(img))
-    print(jpglist)
     return post(res['result'],postinfo['name'],postinfo['description'],postinfo['position_list'],jpglist)
 
 @app.route("/postcomment",methods=['GET','POST'])
