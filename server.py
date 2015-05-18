@@ -1,6 +1,7 @@
 from flask import Flask,request,json
 from config import basedir,app
 from db_querry import *
+import base64
 
 
 @app.route("/")
@@ -41,7 +42,14 @@ def userLogin():
 def postPath():
     postinfo = request.get_json(force=True)
     res = json.loads(login(postinfo['username'],postinfo['password']))
-    return post(res['result'],postinfo['name'],postinfo['description'],postinfo['position_list'])
+    photores = postinfo['photos']
+    jpglist = []
+    print(type(photores)==list)
+    for img in photores:
+        print(img)
+        jpglist.append(base64.b64decode(img))
+    print(jpglist)
+    return post(res['result'],postinfo['name'],postinfo['description'],postinfo['position_list'],jpglist)
 
 @app.route("/postcomment",methods=['GET','POST'])
 def postcomment():

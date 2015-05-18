@@ -214,16 +214,18 @@ class FlaskrTestCase(unittest.TestCase):
         pasword = "test1"
         name = "post test 1"
         desc = "this is a post test 1"
+        photos = []
         positions = "[[50,70],[51,70]]"
-        return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions})
+        return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions, "photos":photos})
 
     def get_post_data_2(self):
         username = "test2"
         pasword = "test2"
         name = "post test 2"
         desc = "this is a post test 2"
+        photos = []
         positions = "[[50,70],[51,70]]"
-        return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions})
+        return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions,"photos":photos})
 
     def get_comment_data_1(self):
         username = "test1"
