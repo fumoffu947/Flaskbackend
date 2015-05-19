@@ -87,15 +87,15 @@ def get_friend_posts(id_u):
         return json.jsonify({"result": res})
 
 def post(id_u,name,description,position_list,photos):
-    try:
+    #try:
         db = get_db()
         db.execute("insert into posts (id_u,name,description,photo_path_list,position_list) values(?,?,?,?,?)",[id_u,name,description,"photo",position_list])
         for photo in photos:
             db.execute("insert into postphotos (photo, id_p) values (?,?)",(photo, id_u))
         db.commit()
         return json.jsonify({"result":"post added"})
-    except:
-        return json.jsonify({"result":"failed to post"})
+    #except:
+    #    return json.jsonify({"result":"failed to post"})
 
 def get_comments(id_p):
     db = get_db()
