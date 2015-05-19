@@ -42,11 +42,11 @@ def userLogin():
 def postPath():
     postinfo = request.get_json(force=True)
     res = json.loads(login(postinfo['username'],postinfo['password']))
-    photores = postinfo['photos']
-    jpglist = []
-    for img in photores:
-        jpglist.append(base64.b64decode(img))
-    return post(res['result'],postinfo['name'],postinfo['description'],postinfo['position_list'],jpglist)
+    #photores = postinfo['photos']
+    #jpglist = []
+    #for img in photores:
+    #    jpglist.append(base64.b64decode(img))
+    return post(res['result'],postinfo['name'],postinfo['description'],postinfo['position_list'],postinfo['photos'])
 
 @app.route("/postcomment",methods=['GET','POST'])
 def postcomment():
