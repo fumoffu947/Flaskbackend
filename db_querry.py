@@ -91,8 +91,10 @@ def post(id_u,name,description,position_list,photos):
         db = get_db()
         db.execute("insert into posts (id_u,name,description,photo_path_list,position_list) values(?,?,?,?,?)",[id_u,name,description,"photo",position_list])
         photoList = photos.split(",")
+        querry = db.execute("select id_p from posts where id_u=? and name=? and description=? and photo_path_list=? and position_list=?",[id_u,name,description,"photo",position_list])
+        result = querry.fetchall()
         for photo in photoList:
-            db.execute("insert into postphotos (photo, id_p) values (?,?)",(photo, id_u))
+            db.execute("insert into postphotos (photo, id_p) values (?,?)",(photo, result[0]['id_p']))
         db.commit()
         return json.jsonify({"result":"post added"})
     #except:
