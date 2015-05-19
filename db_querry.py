@@ -90,7 +90,7 @@ def post(id_u,name,description,position_list,photos):
     try:
         db = get_db()
         db.execute("insert into posts (id_u,name,description,photo_path_list,position_list) values(?,?,?,?,?)",[id_u,name,description,"photo",position_list])
-        for photo in list(photos):
+        for photo in photos:
             db.execute("insert into postphotos (photo, id_p) values (?,?)",(photo, id_u))
         db.commit()
         return json.jsonify({"result":"post added"})
