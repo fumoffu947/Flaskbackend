@@ -42,9 +42,6 @@ def userLogin():
 def postPath():
     postinfo = request.get_json(force=True)
     res = json.loads(login(postinfo['username'],postinfo['password']))
-    #photores = postinfo['photos']
-    #for img in photores:
-    #    jpglist.append(base64.b64decode(img))
     return post(res['result'],postinfo['name'],postinfo['description'],postinfo['position_list'],postinfo['photos'])
 
 @app.route("/postcomment",methods=['GET','POST'])
@@ -70,6 +67,42 @@ def addremovelike():
     postinfo = request.get_json(force=True)
     login_id = json.loads(login(postinfo['username'],postinfo['password']))
     return add_remove_post_like(postinfo['id_p'], login_id['result'])
+
+@app.route("/addremovefollow", methods=['GET','POST'])
+def addremovefollow():
+    postinfo = request.get_json(force=True)
+    login_id = json.loads(login(postinfo['username'],postinfo['password']))
+    return add_remove_follow(login_id['result'],postinfo['id_u_follow'])
+
+@app.route("/addfriendrequest", methods=['GET','POST'])
+def addfriendrequest():
+    postinfo = request.get_json(force=True)
+    login_id = json.loads(login(postinfo['username'],postinfo['password']))
+    return add_friend_request(login_id['result'],postinfo['id_u_fr'], False)
+
+@app.route("/removefriendrequest", methods=['GET','POST'])
+def removefriendrequest():
+    postinfo = request.get_json(force=True)
+    login_id = json.loads(login(postinfo['username'],postinfo['password']))
+    return add_friend_request(login_id['result'],postinfo['id_u_fr'], True)
+
+@app.route("/getfriendrequests", methods=['GET','POST'])
+def getfriendrequests():
+    postinfo = request.get_json(force=True)
+    login_id = json.loads(login(postinfo['username'],postinfo['password']))
+    return get_friend_requests(login_id['result'])
+
+@app.route("/getmessages", methods=['GET','POST'])
+def getmessages():
+    postinfo = request.get_json(force=True)
+    login_id = json.loads(login(postinfo['username'],postinfo['password']))
+    return get_message(login_id['result'], postinfo['id_u_to'])
+
+@app.route("/addmessage", methods=['GET','POST'])
+def addmessage():
+    postinfo = request.get_json(force=True)
+    login_id = json.loads(login(postinfo['username'],postinfo['password']))
+    return add_message(login_id['result'],postinfo['id_u_to'],postinfo['message'])
 
 @app.route("/searchuser", methods=['GET','POST'])
 def search():

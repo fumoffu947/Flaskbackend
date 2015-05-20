@@ -122,12 +122,70 @@ def add_remove_friend(id_u,id_u_friend):
     qresult = querry.fetchall()
     if (len(qresult) == 0):
         db.execute("insert into friends (id_u,id_u_friend) values(?,?)", (id_u, id_u_friend))
+        db.execute("insert into friends (id_u,id_u_friend) values(?,?)", (id_u_friend, id_u))
+        db.execute("delete from friendrequests where id_u=? and id_u_fr=? or id_u=? and id_u_fr=?",(id_u,id_u_friend,id_u_friend,id_u))
         db.commit()
         return json.jsonify({"result":"friend was added"})
     else:
         db.execute("delete from friends where id_u=? and id_u_friend=?",(id_u,id_u_friend))
+        db.execute("delete from friends where id_u=? and id_u_friend=?",(id_u_friend, id_u))
         db.commit()
         return json.jsonify({"result":"friend was removed"})
+
+def add_remove_follow(id_u,id_u_follow):
+    db = get_db()
+    querry = db.execute("select * from follow where id_u=? and id_u_follow=?",(id_u,id_u_follow))
+    qresult = querry.fetchall()
+    if (len(qresult) == 0):
+        db.execute("insert into follow (id_u,id_u_follow) values(?,?)", (id_u, id_u_follow))
+        db.commit()
+        return json.jsonify({"result":"follow was added"})
+    else:
+        db.execute("delete from follow where id_u=? and id_u_follow=?",(id_u,id_u_follow))
+        db.commit()
+        return json.jsonify({"result":"follow was removed"})
+
+def add_friend_request(id_u, id_u_friendrequest, removeRequest):
+    db = get_db()
+    querry = db.execute("select * from friendrequests where id_u=? and id_u_fr=?",(id_u,id_u_friendrequest))
+    qresult = querry.fetchall()
+    if (len(qresult) == 0):
+        db.execute("insert into friendrequests (id_u,id_u_fr) values (?,?)",(id_u,id_u_friendrequest))
+        db.commit()
+        return json.jsonify({"result":"friend request added"})
+    elif (removeRequest):
+        db.execute("delete from friendrequests where id_u=? and id_u_fr=?",(id_u, id_u_friendrequest))
+        db.commit()
+        return json.jsonify({"result":"friend request was removed"})
+    else:
+        return json.jsonify({"result":"friend request already exists"})
+
+def get_friend_requests(id_u):
+    db = get_db()
+    querry = db.execute("select * from friendrequests where id_u_fr=?", (id_u,))
+    qresult = querry.fetchall()
+    res = []
+    for request in qresult:
+        name = json.loads(get_name(request['id_u']))
+        if (name['result'] == "ok"):
+            res.append([request['id_u'],name['name'],name['lastname']])
+    return json.jsonify({"result":res})
+
+def add_message(id_u, id_u_to, message):
+    db = get_db()
+    db.execute("insert into messages (id_u,id_u_to,message) values (?,?,?)",(id_u,id_u_to,message))
+    db.commit()
+    return  json.jsonify({"result":"message added"})
+
+def get_message(id_u, id_u_to):
+    db = get_db()
+    querry = db.execute("select * from messages where id_u=? and id_u_to=? or id_u=? and id_u_to=? ORDER BY timestamp ASC",(id_u,id_u_to,id_u_to,id_u))
+    qresult = querry.fetchall()
+    res = []
+    for message in qresult:
+        name = json.loads(get_name(message['id_u']))
+        res.append([name['name']+name['lastname'],message['message'],message['id_u']])
+    return json.jsonify({"result":res})
 
 def get_friends(id_u):
     db = get_db()
@@ -227,8 +285,10 @@ def inittables():
     con.execute("create table if not exists posts(id_p integer primary key autoincrement, id_u integer not null, name text, description text, photo_path_list text, position_list text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
     con.execute("create table if not exists comments(id_c integer primary key autoincrement, id_p integer not null, id_u integer not null,comment text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
     con.execute("create table if not exists likes(id_l integer primary key autoincrement,id_p integer not null, id_u integer not null)")
-    con.execute("create table if not exists friendrequests(id_fr integer primary key autoincrement, id_u integer, id_u_friend_request integer)")
     con.execute("create table if not exists postphotos(id_pp integer primary key autoincrement, photo text, id_p integer)")
+    con.execute("create table if not exists follow(id_f integer primary key autoincrement, id_u integer, id_u_follow integer)")
+    con.execute("create table if not exists friendrequests(id_r integer primary key autoincrement, id_u integer, id_u_fr integer)")
+    con.execute("create table if not exists messages(id_m integer primary key autoincrement, id_u integer, id_u_to integer, message text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
     con.commit()
     con.close()
 
