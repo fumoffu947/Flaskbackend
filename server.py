@@ -1,7 +1,6 @@
 from flask import Flask,request,json
 from config import basedir,app
 from db_querry import *
-import base64
 
 
 @app.route("/")

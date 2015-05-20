@@ -115,9 +115,8 @@ class FlaskrTestCase(unittest.TestCase):
         assert "post test 2" in rv.data
         assert "this is a post test 2" in rv.data
         rv = self.apps.post("/getuserflowpost",data=self.get_user_pas_2(),follow_redirects=True)
-        assert "no Friends" in rv.data
-        assert "post test 1" not in rv.data
-        assert "this is a post test 1" not in rv.data
+        assert "post test 1" in rv.data
+        assert "this is a post test 1" in rv.data
 
     def test_login(self):
         rv = self.apps.post("/adduser",data=self.get_user_data_1(),follow_redirects=True)
@@ -154,7 +153,55 @@ class FlaskrTestCase(unittest.TestCase):
         assert "test2" in rv.data
         assert "testson2" in rv.data
         assert "test1" not in rv.data
-        
+
+    def test_add_remove_follow(self):
+        rv = self.apps.post("/adduser",data=self.get_user_data_1(),follow_redirects=True)
+        assert "user added" in rv.data
+        rv = self.apps.post("/adduser",data=self.get_user_data_2(),follow_redirects=True)
+        assert "user added" in rv.data
+        rv = self.apps.post("/addremovefollow", data=self.get_follow_data_1(), follow_redirects=True)
+        assert "follow was added" in rv.data
+        rv = self.apps.post("/addremovefollow", data=self.get_follow_data_1(), follow_redirects=True)
+        assert "follow was removed" in rv.data
+
+    def test_add_friend_request(self):
+        rv = self.apps.post("/adduser",data=self.get_user_data_1(),follow_redirects=True)
+        assert "user added" in rv.data
+        rv = self.apps.post("/adduser",data=self.get_user_data_2(),follow_redirects=True)
+        assert "user added" in rv.data
+        rv = self.apps.post("/addfriendrequest", data=self.get_request_friend_data_1(), follow_redirects=True)
+        assert "friend request added" in rv.data
+        rv = self.apps.post("/addfriendrequest", data=self.get_request_friend_data_1(), follow_redirects=True)
+        assert "friend request already exists" in rv.data
+        rv = self.apps.post("/addfriendrequest", data=self.get_request_friend_data_2(), follow_redirects=True)
+        assert "friend request added" in rv.data
+        rv = self.apps.post("/getfriendrequests", data=self.get_request_friend_data_1(), follow_redirects=True)
+        assert "2" in rv.data
+        assert "test2" in rv.data
+        assert "testson2" in rv.data
+        rv = self.apps.post("/getfriendrequests", data=self.get_request_friend_data_2(), follow_redirects=True)
+        assert "1" in rv.data
+        assert "test1" in rv.data
+        assert "testson1" in rv.data
+        rv = self.apps.post("/removefriendrequest", data=self.get_request_friend_data_1(), follow_redirects=True)
+        assert "friend request was removed" in rv.data
+
+    def test_add_get_message(self):
+        rv = self.apps.post("/adduser",data=self.get_user_data_1(),follow_redirects=True)
+        assert "user added" in rv.data
+        rv = self.apps.post("/adduser",data=self.get_user_data_2(),follow_redirects=True)
+        assert "user added" in rv.data
+        rv = self.apps.post("/addmessage", data=self.get_message_data_1(), follow_redirects=True)
+        assert "message added" in rv.data
+        rv = self.apps.post("/addmessage", data=self.get_message_data_2(), follow_redirects=True)
+        assert "message added" in rv.data
+        rv = self.apps.post("/getmessages", data=self.get_message_data_1(), follow_redirects=True)
+        assert "test message 1" in rv.data
+        assert "test message 2" in rv.data
+        rv = self.apps.post("/getmessages", data=self.get_message_data_2(), follow_redirects=True)
+        assert "test message 1" in rv.data
+        assert "test message 2" in rv.data
+
     def get_user_data_1(self):
         name = "test1"
         lastname = "testson1"
@@ -214,7 +261,7 @@ class FlaskrTestCase(unittest.TestCase):
         pasword = "test1"
         name = "post test 1"
         desc = "this is a post test 1"
-        photos = []
+        photos = "pic,pic"
         positions = "[[50,70],[51,70]]"
         return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions, "photos":photos})
 
@@ -223,7 +270,7 @@ class FlaskrTestCase(unittest.TestCase):
         pasword = "test2"
         name = "post test 2"
         desc = "this is a post test 2"
-        photos = []
+        photos = "pic,pic"
         positions = "[[50,70],[51,70]]"
         return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions,"photos":photos})
 
@@ -236,9 +283,15 @@ class FlaskrTestCase(unittest.TestCase):
 
     def get_friend_data_1(self):
         username = "test1"
-        pasword = "test1"
+        password = "test1"
         friend = 2
-        return json.dumps({"username":username,"password":pasword,"id_u_friend":friend})
+        return json.dumps({"username":username,"password":password,"id_u_friend":friend})
+
+    def get_follow_data_1(self):
+        username = "test1"
+        password = "test1"
+        follow = 2
+        return json.dumps({"username":username,"password":password,"id_u_follow":follow})
 
     def get_like_data_1(self):
         username = "test1"
@@ -251,6 +304,32 @@ class FlaskrTestCase(unittest.TestCase):
         pasword = "test1"
         id_p = "troll"
         return json.dumps({"username":username,"password":pasword,"id_p":id_p})
+
+    def get_request_friend_data_1(self):
+        username = "test1"
+        pasword = "test1"
+        id_u_fr = 2
+        return json.dumps({"username":username,"password":pasword,"id_u_fr":id_u_fr})
+
+    def get_request_friend_data_2(self):
+        username = "test2"
+        pasword = "test2"
+        id_u_fr = 1
+        return json.dumps({"username":username,"password":pasword,"id_u_fr":id_u_fr})
+
+    def get_message_data_1(self):
+        username = "test1"
+        pasword = "test1"
+        id_u_to = 2
+        message = "test message 1"
+        return json.dumps({"username":username,"password":pasword,"id_u_to":id_u_to, "message":message})
+
+    def get_message_data_2(self):
+        username = "test2"
+        pasword = "test2"
+        id_u_to = 1
+        message = "test message 2"
+        return json.dumps({"username":username,"password":pasword,"id_u_to":id_u_to, "message":message})
 
 if __name__ == '__main__':
     unittest.main()
