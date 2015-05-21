@@ -28,5 +28,6 @@ def init_db():
     con.execute("create table if not exists follow(id_f integer primary key autoincrement, id_u integer, id_u_follow integer)")
     con.execute("create table if not exists friendrequests(id_r integer primary key autoincrement, id_u integer, id_u_fr integer)")
     con.execute("create table if not exists messages(id_m integer primary key autoincrement, id_u integer, id_u_to integer, message text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
+    con.execute("create table if not exists userpic(id_up integer primary key autoincrement, id_u unique not null, photo text)")
     con.commit()
     con.close()

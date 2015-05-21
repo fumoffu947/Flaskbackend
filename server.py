@@ -30,11 +30,16 @@ def getuser():
     postinfo = request.get_json(force=True)
     return get_user(postinfo['id_u'])
 
+@app.route("/updateprofilepic", methods=['GET','POST'])
+def updateprofilepic():
+    postinfo = request.get_json(force=True)
+    login_id = json.loads(login(postinfo['username'],postinfo['password']))
+    return update_user_pic(login_id['result'], postinfo['profilepic'])
+
 @app.route("/login",methods=["GET","POST"])
 def userLogin():
     postinfo = request.get_json(force=True)
     res = json.loads(login(postinfo['username'],postinfo['password']))
-    print(res)
     return json.jsonify({"result":res['result']})
 
 @app.route("/postpath", methods=["GET","POST"])

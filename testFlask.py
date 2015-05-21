@@ -26,8 +26,23 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.apps.post('/adduser',data=self.get_user_data_1(), follow_redirects=True)
         assert "emailError" in rv.data
         rv = self.apps.post('/adduser',data=self.get_user_data_1_same_username(), follow_redirects=True)
-        print(rv.data)
         assert "usernameExistsError" in rv.data
+        data_p = json.dumps({"id_u":1})
+        rv = self.apps.post("/getuser",data=data_p,follow_redirects=True)
+        assert "test1" in rv.data
+        assert "testson1" in rv.data
+        assert "test1@hotmail.com" in rv.data
+        assert "photo" in rv.data
+        rv = self.apps.post("/updateprofilepic", data=self.get_update_profilepic_data_1(), follow_redirects=True)
+        print(rv.data)
+        assert "updated profilepic" in rv.data
+        data_p = json.dumps({"id_u":1})
+        rv = self.apps.post("/getuser",data=data_p,follow_redirects=True)
+        assert "test1" in rv.data
+        assert "testson1" in rv.data
+        assert "test1@hotmail.com" in rv.data
+        assert "testpic" in rv.data
+
 
 
     def test_get_user(self):
@@ -330,6 +345,12 @@ class FlaskrTestCase(unittest.TestCase):
         id_u_to = 1
         message = "test message 2"
         return json.dumps({"username":username,"password":pasword,"id_u_to":id_u_to, "message":message})
+
+    def get_update_profilepic_data_1(self):
+        username = "test1"
+        pasword = "test1"
+        profilepic = "testpic"
+        return json.dumps({"username":username,"password":pasword,"profilepic":profilepic})
 
 if __name__ == '__main__':
     unittest.main()

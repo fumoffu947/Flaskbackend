@@ -253,10 +253,10 @@ def get_user(id_u):
     qresult = query.fetchall()
     if (len(qresult)>0):
         user = qresult[0]
-        #get pic
+        stringPic = get_user_Pic(id_u)
         return json.jsonify({"name":user['name'],"lastname":user['lastname'],"email":user['epost'],
                              "numb_of_path":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],
-                             "length_went":user['length_went'],"photo_path_list":"[]"})
+                             "length_went":user['length_went'],"profilepic":stringPic})
     else:
         return json.jsonify({'result':'exist no such user'})
 
@@ -275,6 +275,31 @@ def add_user(name,lastname,epost,username,pasword):
         return json.jsonify({"result":"usernameExistsError"})
     db.commit()
     return json.jsonify({"result":"user added"})
+
+def update_user_pic(id_u, pictureString):
+    db = get_db()
+    querry = db.execute("select * from userpic where id_u=?",(id_u,))
+    qresult = querry.fetchall()
+    if (len(qresult) == 0):
+        db.execute("insert into userpic (id_u, photo) values(?,?)", (id_u, pictureString))
+        db.commit()
+        return json.jsonify({"result":"updated profilepic"})
+    else:
+        try:
+            db.execute("UPDATE users SET photo = ? where id_u=?", (pictureString, id_u))
+            db.commit()
+            return json.jsonify({"result":"updated profilepic"})
+        except:
+            return json.jsonify({"result":"failed to add profilepic"})
+
+def get_user_Pic(id_u):
+    db = get_db()
+    querry = db.execute("select * from userpic where id_u=?", (id_u,))
+    qresult = querry.fetchall()
+    if (len(qresult) == 0):
+        return "photo"
+    else:
+        return qresult[0]['photo']
 
 def get_post_likes(id_p):
     db = get_db()
@@ -338,6 +363,7 @@ def inittables():
     con.execute("create table if not exists follow(id_f integer primary key autoincrement, id_u integer, id_u_follow integer)")
     con.execute("create table if not exists friendrequests(id_r integer primary key autoincrement, id_u integer, id_u_fr integer)")
     con.execute("create table if not exists messages(id_m integer primary key autoincrement, id_u integer, id_u_to integer, message text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
+    con.execute("create table if not exists userpic(id_up integer primary key autoincrement, id_u unique not null, photo text)")
     con.commit()
     con.close()
 
