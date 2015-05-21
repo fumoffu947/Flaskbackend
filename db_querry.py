@@ -19,6 +19,8 @@ def close_db(error):
         g.sqlite_db.close()
 
 def login(username, pasword):
+    ### fetches the id_u of the user ###
+    ### returns the error id username or password is wrong ###
     db = get_db()
     usernameQuery = db.execute("select * from user_pas where username=?",(username,))
     result = usernameQuery.fetchall()
@@ -29,6 +31,7 @@ def login(username, pasword):
     return json.dumps({"result":"passwordError"})
 
 def get_name(id_u):
+    ### fetches the name and lastname of the user of id id_u ###
     db = get_db()
     query = db.execute("SELECT NAME,LASTNAME FROM users where id_u=?",(id_u,))
     result = query.fetchall()
@@ -38,16 +41,21 @@ def get_name(id_u):
         return json.dumps({"result":"no user with that id_u"})
 
 def get_post_from_user(id_u):
+    ### fetches the posts uf the user ###
     db = get_db()
     query = db.execute("select * from posts where id_u=? ORDER BY timestamp DESC",(id_u,))
     result = query.fetchall()
     res = []
     for post in result:
+        ### fetches the photos for the post ###
         photos = []
         photoquerry = db.execute("select photo from postphotos where id_p=?",(post['id_p'],))
         photoresult = photoquerry.fetchall()
+        ### put the photos in a list to send ##
         for photo in photoresult:
             photos.append(photo['photo'])
+
+        ### fethces number of likes, comments, and name, lasnt mane of post owner ###
         likes = json.loads(get_post_likes(post['id_p']))
         comments = json.loads(get_comments(post['id_p']))
         name = json.loads(get_name(post['id_u']))
@@ -57,26 +65,42 @@ def get_post_from_user(id_u):
                               "photos":photos}))
     return json.jsonify({"result": res})
 
-def get_friend_posts(id_u):
+def get_friend_follow_posts(id_u):
+    ### fetches friends and the ones the users id follows and fetches the posts for them in descending order ###
     db = get_db()
+
+    ###fetches friends###
     query = db.execute("select id_u_friend from friends where id_u=?",(id_u,))
     friends = query.fetchall()
     res = []
     for friend in friends:
         res.append(friend['id_u_friend'])
+
+    ###fetches followa###
+    querry = db.execute("select id_u_follow from follow where id_u=?", (id_u,))
+    follows = querry.fetchall()
+    for follow in follows:
+        res.append(follow['id_u_follow'])
+
+    ### if no friends or follows exist return the result##
     if (len(res) == 0):
         return json.jsonify({"result":"no Friends"})
+
+    ### goes trough the users id_u in res and fetch the posts for them
     else:
         db_querry = 'SELECT * FROM posts where id_u in (%s) ORDER BY timestamp DESC'%','.join('?' for a in res)
         querry = db.execute(db_querry,res)
         result = querry.fetchall()
         res = []
         for post in result:
+            ### fetches the pictures for the post ###
             photos = []
             photoquerry = db.execute("select photo from postphotos where id_p=?",(post['id_p'],))
             photoresult = photoquerry.fetchall()
             for photo in photoresult:
                 photos.append(photo['photo'])
+
+            ### fetches the number of likes,coments and the name and lastname of the post owner ###
             likes = json.loads(get_post_likes(post['id_p']))
             comments = json.loads(get_comments(post['id_p']))
             name = json.loads(get_name(post['id_u']))
@@ -86,53 +110,75 @@ def get_friend_posts(id_u):
                                    "likes": likes["result"],"photos":photos}))
         return json.jsonify({"result": res})
 
-def post(id_u,name,description,position_list,photos):
-    #try:
-        db = get_db()
-        db.execute("insert into posts (id_u,name,description,photo_path_list,position_list) values(?,?,?,?,?)",[id_u,name,description,"photo",position_list])
+
+def getPhotoListFromString(photos):
+    if (len(photos) > 0):
         photoList = photos.split(",")
+    else:
+        photoList = []
+    return photoList
+
+
+def post(id_u,name,description,position_list,photos):
+    try:
+        db = get_db()
+        ### post the psth info in posts ###
+        db.execute("insert into posts (id_u,name,description,photo_path_list,position_list) values(?,?,?,?,?)",[id_u,name,description,"photo",position_list])
+        photoList = getPhotoListFromString(photos)
+        ### fetches the id_p of the newly added path ###
         querry = db.execute("select id_p from posts where id_u=? and name=? and description=? and photo_path_list=? and position_list=?",[id_u,name,description,"photo",position_list])
         result = querry.fetchall()
+        ### adds the photos for the path in pathphotos with id_p as the path id_p ###
         for photo in photoList:
             db.execute("insert into postphotos (photo, id_p) values (?,?)",(photo, result[0]['id_p']))
         db.commit()
         return json.jsonify({"result":"post added"})
-    #except:
-    #    return json.jsonify({"result":"failed to post"})
+    except:
+        return json.jsonify({"result":"failed to post"})
 
 def get_comments(id_p):
+    ### fetches the comments of a path post and returns a list with comments (name lastname , comment) in descending order ####
     db = get_db()
     query = db.execute("select * from comments where id_p=? order by timestamp DESC",(id_p,))
     result = query.fetchall()
     res = []
     for comment in result:
+        ### fetches the name of the comment owner ###
         name = json.loads(get_name(comment['id_u']))
         res.append([name['name']+name['lastname'],comment['comment']])
     return  json.dumps({"result": res})
 
 def comment_post(id_p, id_u,comment):
+    ### add a comment for a post ###
     db = get_db()
     db.execute("insert into comments (id_p,id_u,comment) values(?,?,?)",[id_p,id_u,comment])
     db.commit()
     return json.jsonify({"result":"comment was added to post"})
 
 def add_remove_friend(id_u,id_u_friend):
+    ### shal only be called if an friend request exists or tho remove a friend relationship ###
+    ### adds and removes friends depending on if the exist before or not ###
     db = get_db()
+    ### checks if the friend relationship exists ###
     querry = db.execute("select * from friends where id_u=? and id_u_friend=?",(id_u,id_u_friend))
     qresult = querry.fetchall()
     if (len(qresult) == 0):
+        ### adds the friend relation ship for both parties ###
         db.execute("insert into friends (id_u,id_u_friend) values(?,?)", (id_u, id_u_friend))
         db.execute("insert into friends (id_u,id_u_friend) values(?,?)", (id_u_friend, id_u))
+        ### remove the friend request for both (if they exists) ###
         db.execute("delete from friendrequests where id_u=? and id_u_fr=? or id_u=? and id_u_fr=?",(id_u,id_u_friend,id_u_friend,id_u))
         db.commit()
         return json.jsonify({"result":"friend was added"})
     else:
+        ### removes the friendrelationship for both users ###
         db.execute("delete from friends where id_u=? and id_u_friend=?",(id_u,id_u_friend))
         db.execute("delete from friends where id_u=? and id_u_friend=?",(id_u_friend, id_u))
         db.commit()
         return json.jsonify({"result":"friend was removed"})
 
 def add_remove_follow(id_u,id_u_follow):
+    ### adds or removes the follow depending on if the users follows the other user or not ###
     db = get_db()
     querry = db.execute("select * from follow where id_u=? and id_u_follow=?",(id_u,id_u_follow))
     qresult = querry.fetchall()
@@ -146,14 +192,17 @@ def add_remove_follow(id_u,id_u_follow):
         return json.jsonify({"result":"follow was removed"})
 
 def add_friend_request(id_u, id_u_friendrequest, removeRequest):
+    ### adds or removes an friend request depending on removerequest ###
     db = get_db()
     querry = db.execute("select * from friendrequests where id_u=? and id_u_fr=?",(id_u,id_u_friendrequest))
     qresult = querry.fetchall()
     if (len(qresult) == 0):
+        ### add request if it dont exist ###
         db.execute("insert into friendrequests (id_u,id_u_fr) values (?,?)",(id_u,id_u_friendrequest))
         db.commit()
         return json.jsonify({"result":"friend request added"})
     elif (removeRequest):
+        ### remove the request ###
         db.execute("delete from friendrequests where id_u=? and id_u_fr=?",(id_u, id_u_friendrequest))
         db.commit()
         return json.jsonify({"result":"friend request was removed"})

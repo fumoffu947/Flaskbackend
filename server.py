@@ -18,7 +18,7 @@ def get_user_posts():
 def getFlowPosts():
     postinfo = request.get_json(force=True)
     res = json.loads(login(postinfo['username'],postinfo['password']))
-    return get_friend_posts(res['result'])
+    return get_friend_follow_posts(res['result'])
 
 @app.route("/adduser" ,methods=["GET","POST"])
 def adduser():
