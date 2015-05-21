@@ -285,12 +285,12 @@ def update_user_pic(id_u, pictureString):
         db.commit()
         return json.jsonify({"result":"updated profilepic"})
     else:
-        try:
+        #try:
             db.execute("UPDATE users SET photo = ? where id_u=?", (pictureString, id_u))
             db.commit()
             return json.jsonify({"result":"updated profilepic"})
-        except:
-            return json.jsonify({"result":"failed to add profilepic"})
+        #except:
+         #   return json.jsonify({"result":"failed to add profilepic"})
 
 def get_user_Pic(id_u):
     db = get_db()
