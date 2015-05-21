@@ -264,7 +264,7 @@ def get_user(id_u):
 def add_user(name,lastname,epost,username,pasword):
     db = get_db()
     try:
-        db.execute("insert into users (name,lastname,epost,profilepic,numb_of_paths,number_of_steps,length_went) values(?,?,?,?,?,?,?)", [name,lastname,epost,"basic pic",0,0,0])
+        db.execute("insert into users (name,lastname,epost,profilepic,numb_of_paths,number_of_steps,length_went) values(?,?,?,?,?,?,?)", [name,lastname,epost,"",0,0,0])
     except sqlite3.IntegrityError:
         return json.jsonify({"result":"emailError"})
     query = db.execute("select id_u from users where epost=?",(epost,))
@@ -297,7 +297,7 @@ def get_user_Pic(id_u):
     querry = db.execute("select * from userpic where id_u=?", (id_u,))
     qresult = querry.fetchall()
     if (len(qresult) == 0):
-        return "photo"
+        return ""
     else:
         return qresult[0]['photo']
 
