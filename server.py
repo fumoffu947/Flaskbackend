@@ -46,7 +46,7 @@ def userLogin():
 def postPath():
     postinfo = request.get_json(force=True)
     res = json.loads(login(postinfo['username'],postinfo['password']))
-    return post(res['result'],postinfo['name'],postinfo['description'],postinfo['position_list'],postinfo['photos'])
+    return post(res['result'],postinfo['name'],postinfo['description'],postinfo['position_list'],postinfo['photos'], postinfo['lenght_went'])
 
 @app.route("/postcomment",methods=['GET','POST'])
 def postcomment():

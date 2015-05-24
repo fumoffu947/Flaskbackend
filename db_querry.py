@@ -4,11 +4,13 @@ from config import app
 
 
 def connect_db():
+    ### conect to the database with the path from the app config ###
     connection = sqlite3.connect(app.config['DATABASE_PATH'])
     connection.row_factory = sqlite3.Row
     return connection
 
 def get_db():
+    ### connect to the database if it is not already connected ###
     if not hasattr(g,'sqlite_db'):
         g.sqlite_db = connect_db()
     return g.sqlite_db
@@ -110,7 +112,7 @@ def get_friend_follow_posts(id_u):
                                    "likes": likes["result"],"photos":photos}))
         return json.jsonify({"result": res})
 
-
+### split the Base64 picture string from JsonPost into separate strings and return a list ###
 def getPhotoListFromString(photos):
     if (len(photos) > 0):
         photoList = photos.split(",")
@@ -119,7 +121,7 @@ def getPhotoListFromString(photos):
     return photoList
 
 
-def post(id_u,name,description,position_list,photos):
+def post(id_u,name,description,position_list,photos,path_lenght):
     try:
         db = get_db()
         ### post the psth info in posts ###
@@ -131,6 +133,12 @@ def post(id_u,name,description,position_list,photos):
         ### adds the photos for the path in pathphotos with id_p as the path id_p ###
         for photo in photoList:
             db.execute("insert into postphotos (photo, id_p) values (?,?)",(photo, result[0]['id_p']))
+
+        ### updates the user ###
+        path_querry = db.execute("select * from users where id_u=?", (id_u,))
+        user_info = path_querry.fetchall()[0]
+        db.execute("update users set numb_of_paths=? where id_u=?",(user_info['numb_of_paths']+1, id_u))
+        db.execute("update users set length_went=? where id_u=?",(user_info['length_went']+path_lenght, id_u))
         db.commit()
         return json.jsonify({"result":"post added"})
     except:
@@ -156,7 +164,7 @@ def comment_post(id_p, id_u,comment):
     return json.jsonify({"result":"comment was added to post"})
 
 def add_remove_friend(id_u,id_u_friend):
-    ### shal only be called if an friend request exists or tho remove a friend relationship ###
+    ### shal only be called if an friend request exists or to remove a friend relationship ###
     ### adds and removes friends depending on if the exist before or not ###
     db = get_db()
     ### checks if the friend relationship exists ###
@@ -171,9 +179,10 @@ def add_remove_friend(id_u,id_u_friend):
         db.commit()
         return json.jsonify({"result":"friend was added"})
     else:
-        ### removes the friendrelationship for both users ###
+        ### removes the friendrelationship for both users and messages ###
         db.execute("delete from friends where id_u=? and id_u_friend=?",(id_u,id_u_friend))
         db.execute("delete from friends where id_u=? and id_u_friend=?",(id_u_friend, id_u))
+        db.execute("delete from messages where id_u=? and id_u_to=? or id_u=? and id_u_to=?", (id_u, id_u_friend, id_u_friend, id_u))
         db.commit()
         return json.jsonify({"result":"friend was removed"})
 
@@ -209,24 +218,35 @@ def add_friend_request(id_u, id_u_friendrequest, removeRequest):
     else:
         return json.jsonify({"result":"friend request already exists"})
 
+
 def get_friend_requests(id_u):
+    ###
+    """
+    gets the friends of user with id_u
+    :param id_u:
+    :return: a list of [id_u,name.lastname]
+    """
     db = get_db()
     querry = db.execute("select * from friendrequests where id_u_fr=?", (id_u,))
     qresult = querry.fetchall()
     res = []
     for request in qresult:
+        ### gets the name of the requester ###
         name = json.loads(get_name(request['id_u']))
         if (name['result'] == "ok"):
             res.append([request['id_u'],name['name'],name['lastname']])
     return json.jsonify({"result":res})
 
 def add_message(id_u, id_u_to, message):
+    ### adds a message from id_u to id_u_to ###
     db = get_db()
     db.execute("insert into messages (id_u,id_u_to,message) values (?,?,?)",(id_u,id_u_to,message))
     db.commit()
     return  json.jsonify({"result":"message added"})
 
 def get_message(id_u, id_u_to):
+    ### gets all messages from and to id_u and id_u_to and order them by descending order ###
+    ### returns a list of [name+lastname, message, id_u] ###
     db = get_db()
     querry = db.execute("select * from messages where id_u=? and id_u_to=? or id_u=? and id_u_to=? ORDER BY timestamp ASC",(id_u,id_u_to,id_u_to,id_u))
     qresult = querry.fetchall()
@@ -237,6 +257,7 @@ def get_message(id_u, id_u_to):
     return json.jsonify({"result":res})
 
 def get_friends(id_u):
+    ### gets the frinds for the current user and returns them in a list ass [id_u_friend, name, lastname] ###
     db = get_db()
     query = db.execute("select id_u_friend from friends where id_u=?", (id_u,))
     qresult = query.fetchall()
@@ -248,6 +269,7 @@ def get_friends(id_u):
     return json.jsonify({"result":res})
 
 def get_user(id_u):
+    ### gets the user of given id_u ###
     db = get_db()
     query = db.execute("select * from users where id_u=?",(id_u,))
     qresult = query.fetchall()
@@ -262,14 +284,16 @@ def get_user(id_u):
 
 
 def add_user(name,lastname,epost,username,pasword):
+    ### adds a user and password ###
+    ### if no constrains is detected then returns user added ###
     db = get_db()
-    try:
+    try: ### trys to add user. If unique constrain is detected then an emailError is sent back ###
         db.execute("insert into users (name,lastname,epost,profilepic,numb_of_paths,number_of_steps,length_went) values(?,?,?,?,?,?,?)", [name,lastname,epost,"",0,0,0])
     except sqlite3.IntegrityError:
         return json.jsonify({"result":"emailError"})
     query = db.execute("select id_u from users where epost=?",(epost,))
     result = query.fetchall()[0]
-    try:
+    try: ### if unique constrain is detected on username then returns usernameError ###
         db.execute("insert into user_pas (id_u,username,pas) values(?,?,?)",[result['id_u'],username,pasword])
     except sqlite3.IntegrityError:
         return json.jsonify({"result":"usernameExistsError"})
@@ -277,6 +301,8 @@ def add_user(name,lastname,epost,username,pasword):
     return json.jsonify({"result":"user added"})
 
 def update_user_pic(id_u, pictureString):
+    ### updates the user picture###
+    ### id no picture exist for the current user then it is added ###
     db = get_db()
     querry = db.execute("select * from userpic where id_u=?",(id_u,))
     qresult = querry.fetchall()
@@ -293,6 +319,7 @@ def update_user_pic(id_u, pictureString):
             return json.jsonify({"result":"failed to add profilepic"})
 
 def get_user_Pic(id_u):
+    ### returns the user picture ###
     db = get_db()
     querry = db.execute("select * from userpic where id_u=?", (id_u,))
     qresult = querry.fetchall()
@@ -302,6 +329,8 @@ def get_user_Pic(id_u):
         return qresult[0]['photo']
 
 def get_post_likes(id_p):
+    ### gets the number of likes of a given post ###
+    ### returns the number of likes in an JsonObject ###
     db = get_db()
     query = db.execute("select * from likes where id_p=?", (id_p,))
     qresult = query.fetchall()
@@ -312,10 +341,12 @@ def get_post_likes(id_p):
 
 
 def add_remove_post_like(id_p, id_u):
+    ### add or removes a like from a post depending on if it exists before or not ###
     db = get_db()
     querry = db.execute("select * from likes where id_p=? and id_u=?",(id_p,id_u))
     result = querry.fetchall()
     if (len(result) == 0):
+        ### ses if there exists a post of that id and adds the like else returns error ###
         value_integrity = db.execute("select * from posts where id_p=?",(id_p,))
         value_result = value_integrity.fetchall()
         if (len(value_result) > 0):
@@ -325,11 +356,14 @@ def add_remove_post_like(id_p, id_u):
         else:
             return json.jsonify({"result":"invalidInput"})
     else:
+        ### removes the like if postlike already exists ###
         db.execute("delete from likes where id_p=? and id_u=?",(id_p, id_u))
         db.commit()
         return json.jsonify({"result":"post like was removed"})
 
 def user_search(id_u, partusername):
+    ### searches for user with given partusername ###
+    ### return a list of all found users ###
     db = get_db()
     querry = db.execute('select id_u,name,lastname from users where not id_u=? and name like ? or not id_u=? and lastname like ?',(id_u, "%"+partusername+"%", id_u, "%"+partusername+"%"))
     qresult = querry.fetchall()
@@ -338,7 +372,7 @@ def user_search(id_u, partusername):
         res.append([person['id_u'],person['name'],person['lastname']])
     return json.jsonify({"result":res})
 
-
+### removeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ###
 def get_all_users():
     db = get_db()
     querry = db.execute("select * from users")

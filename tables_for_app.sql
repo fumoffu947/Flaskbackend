@@ -4,3 +4,8 @@ create table if not exists friends(id_f integer primary key autoincrement, id_u 
 create table if not exists posts(id_p integer primary key autoincrement, id_u integer not null, name text, description text, photo_path_list text, position_list text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);
 create table if not exists comments(id_c integer primary key autoincrement, id_p integer not null, id_u integer not null,comment text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);
 create table if not exists likes(id_l integer primary key autoincrement,id_p integer not null, id_u integer not null);
+create table if not exists postphotos(id_pp integer primary key autoincrement, photo text, id_p integer);
+create table if not exists follow(id_f integer primary key autoincrement, id_u integer, id_u_follow integer);
+create table if not exists friendrequests(id_r integer primary key autoincrement, id_u integer, id_u_fr integer);
+create table if not exists messages(id_m integer primary key autoincrement, id_u integer, id_u_to integer, message text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP);
+create table if not exists userpic(id_up integer primary key autoincrement, id_u unique not null, photo text);

@@ -29,15 +29,17 @@ class FlaskrTestCase(unittest.TestCase):
         assert "usernameExistsError" in rv.data
         data_p = json.dumps({"id_u":1})
         rv = self.apps.post("/getuser",data=data_p,follow_redirects=True)
+        ### to se that the user is there and not with the pic to update with ###
         assert "test1" in rv.data
         assert "testson1" in rv.data
         assert "test1@hotmail.com" in rv.data
-        assert "photo" in rv.data
+        assert "testpic" not in rv.data
         rv = self.apps.post("/updateprofilepic", data=self.get_update_profilepic_data_1(), follow_redirects=True)
         print(rv.data)
         assert "updated profilepic" in rv.data
         data_p = json.dumps({"id_u":1})
         rv = self.apps.post("/getuser",data=data_p,follow_redirects=True)
+        ### test to se if user with id_u 1 id there and with updated pic ###
         assert "test1" in rv.data
         assert "testson1" in rv.data
         assert "test1@hotmail.com" in rv.data
@@ -65,7 +67,14 @@ class FlaskrTestCase(unittest.TestCase):
         assert "user added" in rv.data
         rv = self.apps.post("/postpath",data=self.get_post_data_1(), follow_redirects=True)
         assert "post added" in rv.data
+        data_p = json.dumps({"id_u":1})
+        rv = self.apps.post("/getuser",data=data_p,follow_redirects=True)
+        assert "test1" in rv.data
+        assert "testson1" in rv.data
+        assert "test1@hotmail.com" in rv.data
+        assert "40" in rv.data
         rv = self.apps.post("/getuserpost",data=self.get_user_pas_1(),follow_redirects=True)
+        ### test if the added post data is fetched ###
         assert "post test" in rv.data
         assert "this is a post test" in rv.data
         assert "[[50,70],[51,70]]" in rv.data
@@ -87,9 +96,11 @@ class FlaskrTestCase(unittest.TestCase):
         assert "invalidInput" in rv.data
         rv = self.apps.post("/getuserpost",data=self.get_user_pas_1(),follow_redirects=True)
         print(rv.data)
+        ### chacks that the post exists in the data ###
         assert "post test 1" in rv.data
         assert "this is a post test 1" in rv.data
         assert "[[50,70],[51,70]]" in rv.data
+        ### checks that the commment is in the post data with name ###
         assert "a comment on a post" in rv.data
         assert "test1" in rv.data
         assert "testson1" in rv.data
@@ -103,6 +114,7 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.apps.post("/addremovefriend",data=self.get_friend_data_1(), follow_redirects=True)
         assert "friend was added" in rv.data
         rv = self.apps.post("/getfriends",data=self.get_user_pas_1(), follow_redirects=True)
+        ### checks so that the friend just added is in the data ###
         assert "2" in rv.data
         assert "test2" in rv.data
         assert "testson2" in rv.data
@@ -127,13 +139,19 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.apps.post("/postpath",data=self.get_post_data_2(), follow_redirects=True)
         assert "post added" in rv.data
         rv = self.apps.post("/getuserflowpost",data=self.get_user_pas_1(),follow_redirects=True)
+        ### checks so that the post is just the one from his friend
         assert "post test 2" in rv.data
         assert "this is a post test 2" in rv.data
+        assert "post test 1" not in rv.data
+        assert "this is a post test 1" not in rv.data
         rv = self.apps.post("/getuserflowpost",data=self.get_user_pas_2(),follow_redirects=True)
         assert "post test 1" in rv.data
         assert "this is a post test 1" in rv.data
+        assert "post test 2" not in rv.data
+        assert "this is a post test 2" not in rv.data
 
     def test_login(self):
+        ### checks login and error of username and password ###
         rv = self.apps.post("/adduser",data=self.get_user_data_1(),follow_redirects=True)
         assert "user added" in rv.data
         data_out = json.dumps({"username":"test1","password":"test1"})
@@ -161,6 +179,7 @@ class FlaskrTestCase(unittest.TestCase):
         assert "user added" in rv.data
         rv = self.apps.post("/searchuser", data=self.get_user_search_data_1(), follow_redirects=True)
         print(rv.data)
+        ### checks so that just the user search for is in the data ###
         assert "test2" in rv.data
         assert "testson2" in rv.data
         assert "test1" not in rv.data
@@ -191,9 +210,13 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.apps.post("/addfriendrequest", data=self.get_request_friend_data_2(), follow_redirects=True)
         assert "friend request added" in rv.data
         rv = self.apps.post("/getfriendrequests", data=self.get_request_friend_data_1(), follow_redirects=True)
+        ### checks so that just the friend request for this user is in the data ###
         assert "2" in rv.data
         assert "test2" in rv.data
         assert "testson2" in rv.data
+        assert "1" not in rv.data
+        assert "test1" not in rv.data
+        assert "testson1" not in rv.data
         rv = self.apps.post("/getfriendrequests", data=self.get_request_friend_data_2(), follow_redirects=True)
         assert "1" in rv.data
         assert "test1" in rv.data
@@ -211,12 +234,14 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.apps.post("/addmessage", data=self.get_message_data_2(), follow_redirects=True)
         assert "message added" in rv.data
         rv = self.apps.post("/getmessages", data=self.get_message_data_1(), follow_redirects=True)
+        ### checks so that messages from both users is in the data ###
         assert "test message 1" in rv.data
         assert "test message 2" in rv.data
         rv = self.apps.post("/getmessages", data=self.get_message_data_2(), follow_redirects=True)
         assert "test message 1" in rv.data
         assert "test message 2" in rv.data
 
+    """ info data tu use in above tests """
     def get_user_data_1(self):
         name = "test1"
         lastname = "testson1"
@@ -278,7 +303,9 @@ class FlaskrTestCase(unittest.TestCase):
         desc = "this is a post test 1"
         photos = "pic,pic"
         positions = "[[50,70],[51,70]]"
-        return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions, "photos":photos})
+        lenght_went = 40
+        return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions,
+                           "photos":photos, "lenght_went":lenght_went})
 
     def get_post_data_2(self):
         username = "test2"
@@ -287,7 +314,9 @@ class FlaskrTestCase(unittest.TestCase):
         desc = "this is a post test 2"
         photos = "pic,pic"
         positions = "[[50,70],[51,70]]"
-        return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions,"photos":photos})
+        lenght_went = 40
+        return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions,
+                           "photos":photos, "lenght_went":lenght_went})
 
     def get_comment_data_1(self):
         username = "test1"
