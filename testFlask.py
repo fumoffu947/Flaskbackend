@@ -164,14 +164,6 @@ class FlaskrTestCase(unittest.TestCase):
         rv = self.apps.post("/login", data=data_out, follow_redirects=True)
         assert "passwordError" in rv.data
 
-    def test_get_all(self):
-        rv = self.apps.post("/adduser",data=self.get_user_data_1(),follow_redirects=True)
-        assert "user added" in rv.data
-        rv = self.apps.get("/test/getall")
-        print(rv.data)
-        assert "test1" in rv.data
-        assert "testson1" in rv.data
-
     def test_search_users(self):
         rv = self.apps.post("/adduser",data=self.get_user_data_1(),follow_redirects=True)
         assert "user added" in rv.data
@@ -305,7 +297,7 @@ class FlaskrTestCase(unittest.TestCase):
         positions = "[[50,70],[51,70]]"
         lenght_went = 40
         return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions,
-                           "photos":photos, "lenght_went":lenght_went})
+                           "photos":photos, "length_went":lenght_went})
 
     def get_post_data_2(self):
         username = "test2"
@@ -316,7 +308,7 @@ class FlaskrTestCase(unittest.TestCase):
         positions = "[[50,70],[51,70]]"
         lenght_went = 40
         return json.dumps({"username":username,"password":pasword,"name":name,"description":desc,"position_list":positions,
-                           "photos":photos, "lenght_went":lenght_went})
+                           "photos":photos, "length_went":lenght_went})
 
     def get_comment_data_1(self):
         username = "test1"

@@ -277,7 +277,7 @@ def get_user(id_u):
         user = qresult[0]
         stringPic = get_user_Pic(id_u)
         return json.jsonify({"name":user['name'],"lastname":user['lastname'],"email":user['epost'],
-                             "numb_of_path":user['numb_of_paths'],"number_of_steps":user['number_of_steps'],
+                             "numb_of_path":user['numb_of_paths'],
                              "length_went":user['length_went'],"profilepic":stringPic})
     else:
         return json.jsonify({'result':'exist no such user'})
@@ -288,7 +288,7 @@ def add_user(name,lastname,epost,username,pasword):
     ### if no constrains is detected then returns user added ###
     db = get_db()
     try: ### trys to add user. If unique constrain is detected then an emailError is sent back ###
-        db.execute("insert into users (name,lastname,epost,profilepic,numb_of_paths,number_of_steps,length_went) values(?,?,?,?,?,?,?)", [name,lastname,epost,"",0,0,0])
+        db.execute("insert into users (name,lastname,epost,numb_of_paths,length_went) values(?,?,?,?,?)", [name,lastname,epost,0,0])
     except sqlite3.IntegrityError:
         return json.jsonify({"result":"emailError"})
     query = db.execute("select id_u from users where epost=?",(epost,))
@@ -372,23 +372,13 @@ def user_search(id_u, partusername):
         res.append([person['id_u'],person['name'],person['lastname']])
     return json.jsonify({"result":res})
 
-### removeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee ###
-def get_all_users():
-    db = get_db()
-    querry = db.execute("select * from users")
-    qresult = querry.fetchall()
-    result = []
-    for user in qresult:
-        result.append(json.dumps({"name":user['name'],"lastname":user['lastname'],"email":user['epost'],"id_u":user['id_u']}))
-    return json.jsonify({"result":result})
-
 
 def inittables():
     con = sqlite3.connect(app.config['DATABASE_PATH'])
     con.row_factory = sqlite3.Row
 
     con.execute("create table if not exists user_pas(id_u integer primary key unique, username text not null unique, pas text not null)")
-    con.execute("create table if not exists users(id_u integer primary key autoincrement, name text not null, lastname text not null, epost text unique not null, profilepic text, numb_of_paths integer, number_of_steps integer, length_went integer)")
+    con.execute("create table if not exists users(id_u integer primary key autoincrement, name text not null, lastname text not null, epost text unique not null, numb_of_paths integer, length_went integer)")
     con.execute("create table if not exists friends(id_f integer primary key autoincrement, id_u integer not null, id_u_friend integer)")
     con.execute("create table if not exists posts(id_p integer primary key autoincrement, id_u integer not null, name text, description text, photo_path_list text, position_list text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
     con.execute("create table if not exists comments(id_c integer primary key autoincrement, id_p integer not null, id_u integer not null,comment text, timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)")
@@ -401,4 +391,4 @@ def inittables():
     con.commit()
     con.close()
 
-inittables()
+#inittables()

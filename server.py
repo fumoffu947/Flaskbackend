@@ -114,11 +114,6 @@ def search():
     res = json.loads(login(postinfo['username'],postinfo['password']))
     return user_search(res['result'], postinfo['partusername'])
 
-
-@app.route("/test/getall", methods=['GET'])
-def getallusers():
-    return get_all_users()
-
 @app.teardown_appcontext
 def close(error):
     close_db(error)
